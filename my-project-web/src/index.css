@@ -1,0 +1,289 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Общие стили */
+.golden-gradient {
+  background: linear-gradient(90deg,#FDCB6F 0%,#FDCE78 3%,#FDD891 9%,#FEE9BA 16%,#FFECC1 18%,#FEE5B1 20%,#FEDB99 25%,#FDD486 31%,#FDCF78 37%,#FDCB71 46%,#FDCB6F 62%,#FBC96E 77%,#F4C36C 82%,#E8B868 86%,#D7A962 89%,#C1955B 92%,#A67C52 94%,#AB8153 95%,#BC9059 97%,#D7A962 98%,#FDCB6F 100%);
+}
+
+/* Анимации для свадебной страницы */
+.wedding-image {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+}
+
+.wedding-image.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.wedding-image img {
+  transform: scale(1);
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.wedding-image:hover img {
+  transform: scale(1.05);
+}
+
+/* Дополнительные анимации прокрутки */
+@keyframes slideInFromBottom {
+  0% {
+    opacity: 0;
+    transform: translateY(80px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-80px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromRight {
+  0% {
+    opacity: 0;
+    transform: translateX(80px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Плавающая анимация для иконок */
+.floating-icon {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Shimmer эффект для загрузки */
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Градиентные анимации */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animated-gradient {
+  background: linear-gradient(-45deg, #FFB74D, #FDCB6F, #FF8A65, #FFCC02);
+  background-size: 400% 400%;
+  animation: gradientShift 6s ease infinite;
+}
+
+/* Parallax эффект */
+.parallax-element {
+  transform: translateZ(0);
+  transition: transform 0.1s linear;
+  will-change: transform;
+}
+
+/* Красивая анимация загрузки */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.33);
+  }
+  40%, 50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
+}
+
+.pulse-ring {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  animation: pulse-ring 1.5s ease-out infinite;
+}
+
+/* Анимация сердца */
+@keyframes heartbeat {
+  0% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.2);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.2);
+  }
+  70% {
+    transform: scale(1);
+  }
+}
+
+.heartbeat {
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+/* Аспектное соотношение для изображений */
+.aspect-w-3 {
+  position: relative;
+  padding-bottom: 66.666667%;
+}
+
+.aspect-w-3 > * {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Стили для мобильной версии */
+@media (max-width: 640px) {
+  input[type="time"],
+  input[type="date"] {
+    font-size: 16px;
+    padding: 8px;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: #fff;
+  }
+
+  input[type="time"]::-webkit-calendar-picker-indicator,
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    background: transparent;
+    padding: 0;
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .date-time-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+@keyframes slideUp {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes slideDown {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 1s ease forwards;
+}
+
+.animate-slide-down {
+  animation: slideDown 1s ease forwards;
+}

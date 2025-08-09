@@ -1,0 +1,644 @@
+import React, { useState, useContext, createContext, useEffect } from 'react';
+
+type Language = 'ru' | 'en' | 'tj' | 'zh';
+
+interface Translations {
+  restaurant: string;
+  menu: string;
+  cart: string;
+  profile: string;
+  reservation: string;
+  bookTable: string;
+  selectDate: string;
+  selectTime: string;
+  numberOfGuests: string;
+  guest: string;
+  guests: string;
+  yourName: string;
+  enterYourName: string;
+  phoneNumber: string;
+  enterPhoneNumber: string;
+  additionalWishes: string;
+  specialWishes: string;
+  book: string;
+  availableTables: string;
+  pickTimeAndGuests: string;
+  loadError: string;
+  noImage: string;
+  free: string;
+  busy: string;
+  capacity: string;
+  hall: string;
+  selected: string;
+  choose: string;
+  noTables: string;
+  pleaseChooseTable: string;
+  popular: string;
+  mainDishes: string;
+  appetizers: string;
+  salads: string;
+  drinks: string;
+  new: string;
+  addToCart: string;
+  emptyCart: string;
+  emptyCartDescription: string;
+  startShopping: string;
+  items: string;
+  orderSummary: string;
+  subtotal: string;
+  deliveryFee: string;
+  tax: string;
+  total: string;
+  proceedToCheckout: string;
+  checkout: string;
+  contactInfo: string;
+  fullName: string;
+  deliveryMethod: string;
+  delivery: string;
+  pickup: string;
+  deliveryAddress: string;
+  address: React.ReactNode;;
+  comment: string;
+  paymentMethod: string;
+  creditCard: string;
+  cash: string;
+  placeOrder: string;
+  orderConfirmed: string;
+  orderConfirmedDescription: string;
+  estimatedDelivery: string;
+  estimatedPickup: string;
+  backToMenu: string;
+  enterName: string;
+  enterPhone: string;
+  enterAddress: string;
+  orderComment: string;
+  workingHours: string;
+  orderHistory: string;
+  settings: string;
+  error: string;
+  tryAgain: string;
+  selectDeliveryMethod: string;
+  required: string;
+  khujand: string;
+  forelRestaurant: string;
+  loading: string;
+  reservationTitle: string;
+  reservationSubtitle: string;
+  heroSubtitle: string;
+  reserveCtaSub: string;
+  menuCtaSub: string;
+  deliveryLabel: string;
+  bookingLabel: string;
+  email: React.ReactNode;
+  daily: string;
+  workHours: string;
+  aboutUs: string;
+  aboutUsTitle: string;
+  aboutUsWelcome: React.ReactNode;
+  aboutUsLocation: React.ReactNode;
+  aboutUsCuisine: React.ReactNode;
+  aboutUsSignature: React.ReactNode;
+  aboutUsWhyChoose: React.ReactNode;
+  aboutUsFeatures: React.ReactNode;
+  aboutUsTogether: React.ReactNode;
+  aboutUsCome: React.ReactNode;
+  change: string;
+  addressNotSpecified: string;
+  viewPreviousOrders: string;
+  support: string;
+  aboutApp: string;
+  version: string;
+  deliveryPhone: string;
+  bookingPhone: string;
+  emailAddress: string;
+  save: string;
+  cancel: string;
+  fastBookingDescription: string;
+  callToBook: string;
+  phoneNumberLabel: string;
+}
+
+const translations: Record<Language, Translations> = {
+  ru: {
+    restaurant: 'Ресторан',
+    menu: 'Меню',
+    cart: 'Корзина',
+    profile: 'Профиль',
+    reservation: 'Бронь',
+    bookTable: 'Забронировать столик',
+    selectDate: 'Выберите дату',
+    selectTime: 'Выберите время',
+    numberOfGuests: 'Количество гостей',
+    guest: 'гость',
+    guests: 'гостей',
+    yourName: 'Ваше имя',
+    enterYourName: 'Введите ваше имя',
+    phoneNumber: 'Номер телефона',
+    enterPhoneNumber: '+992 XXX XX XX XX',
+    additionalWishes: 'Дополнительные пожелания',
+    specialWishes: 'Особые пожелания или комментарии',
+    book: 'Забронировать',
+    availableTables: 'Доступные столики',
+    pickTimeAndGuests: 'Выберите время и количество гостей, чтобы увидеть столики',
+    loadError: 'Не удалось загрузить список столов',
+    noImage: 'Нет изображения',
+    free: 'Свободно',
+    busy: 'Занят',
+    capacity: 'Вместимость',
+    hall: 'Зал',
+    selected: 'Выбрано',
+    choose: 'Выбрать',
+    noTables: 'Нет данных по столам на выбранные параметры',
+    pleaseChooseTable: 'Пожалуйста, выберите столик',
+    popular: 'Популярное',
+    mainDishes: 'Основные блюда',
+    appetizers: 'Закуски',
+    salads: 'Салаты',
+    drinks: 'Напитки',
+    new: 'Новинка',
+    addToCart: 'В корзину',
+    emptyCart: 'Корзина пуста',
+    emptyCartDescription: 'Добавьте блюда из меню, чтобы сделать заказ',
+    startShopping: 'Перейти к меню',
+    items: 'товаров',
+    orderSummary: 'Итого по заказу',
+    subtotal: 'Подытог',
+    deliveryFee: 'Доставка',
+    tax: 'Налог',
+    total: 'Итого',
+    proceedToCheckout: 'Оформить заказ',
+    checkout: 'Оформление заказа',
+    contactInfo: 'Контактная информация',
+    fullName: 'Полное имя',
+    deliveryMethod: 'Способ получения',
+    delivery: 'Доставка',
+    pickup: 'Самовывоз',
+    deliveryAddress: 'Адрес доставки',
+    comment: 'Комментарий',
+    paymentMethod: 'Способ оплаты',
+    reservationTitle: 'Бронирование стола',
+    creditCard: 'Банковская карта',
+    cash: 'Наличными',
+    placeOrder: 'Оформить заказ',
+    orderConfirmed: 'Заказ подтвержден!',
+    orderConfirmedDescription: 'Ваш заказ принят и передан в кухню. Мы свяжемся с вами для подтверждения.',
+    estimatedDelivery: 'Время доставки: 30-45 минут',
+    estimatedPickup: 'Время приготовления: 20-30 минут',
+    backToMenu: 'Вернуться в меню',
+    enterName: 'Введите ваше имя',
+    enterPhone: 'Введите номер телефона',
+    enterAddress: 'Введите адрес доставки',
+    orderComment: 'Комментарий к заказу',
+    workingHours: '08:00 - 23:00',
+    orderHistory: 'История заказов',
+    settings: 'Настройки',
+    loading: 'Загрузка...',
+    error: 'Ошибка',
+    tryAgain: 'Попробовать снова',
+    selectDeliveryMethod: 'Выберите способ получения',
+    required: 'Обязательное поле',
+    khujand: 'г. Худжанд',
+    forelRestaurant: 'Ресторан Форель',
+    reservationSubtitle: 'Забронировать столик',
+    heroSubtitle: "Изысканная кухня в сердце Худжанда",
+    reserveCtaSub: "Забронировать столик →",
+    menuCtaSub: "Посмотреть меню →",
+    address: <>г. Худжанд, <br/> улица Сырдарьинская б/н</>,
+    deliveryLabel: "Доставка",
+    bookingLabel: "Бронирование",
+    email: <>Почта:<br/>info@forelrest.com</>,
+    daily: "Ежедневно",
+    workHours: "8:00 – 23:00",
+    aboutUs: "О нас",
+    aboutUsTitle: "О ресторане Форель",
+    aboutUsWelcome: <>Добро пожаловать в ресторанный комплекс премиум-класса — Форель.<br/>Где вкус встречается с атмосферой, а каждая деталь создаёт настроение.</>,
+    aboutUsLocation: <>📍 В самом сердце Худжанда, на живописном берегу Сырдарьи, расположен ресторан, о котором хочется говорить, к которому хочется возвращаться и который невозможно забыть.</>,
+    aboutUsCuisine: <>🌍 Кухня мира в одном месте:<br/>Авторская подача, национальные традиции, изысканная восточно-европейская классика, тонкая японская эстетика, душевная грузинская кухня и лёгкость итальянских вкусов.<br/>Каждое блюдо — продумано до мелочей.</>,
+    aboutUsSignature: <>🐟 Наше фирменное блюдо — форель на мангале.<br/>Свежая рыба, приготовленная с душой, стала настоящим символом вкуса и стиля ресторана «Форель».</>,
+    aboutUsWhyChoose: <>💫 Почему выбирают именно нас?</>,
+    aboutUsFeatures: <>— Просторный банкетный зал на 200 гостей для самых красивых свадеб и событий вашей жизни.<br/>— 17 стильных кабин вместимостью от 6 до 70 человек — каждая с уникальным интерьером и комфортом.<br/>— Две веранды и терраса с живописным видом на Сырдарью.<br/>— Одна из веранд украшена изящным водопадом, создающим атмосферу уюта и спокойствия.<br/>— Обилие живых растений, особенно на верандах, наполняет пространство свежестью и природной гармонией.</>,
+    aboutUsTogether: <>👨‍👩‍👧‍👦 Здесь приятно быть вместе — с семьёй, друзьями, любимыми.<br/>Ресторан «Форель» — это не просто ужин. Это воспоминание, к которому вы будете возвращаться снова и снова.</>,
+    aboutUsCome: <>✨ Приходите за атмосферой, оставайтесь за вкусом.<br/>Мы здесь, чтобы удивлять.</>,
+    change: 'Изменить',
+    addressNotSpecified: 'Адрес не указан',
+    viewPreviousOrders: 'Просмотр предыдущих заказов',
+    support: 'Поддержка',
+    aboutApp: 'О приложении',
+    version: 'Версия 1.0.0',
+    deliveryPhone: '111 30 7777',
+    bookingPhone: '88 202 7777',
+    emailAddress: 'info@forelrest.com',
+    save: 'Сохранить',
+    cancel: 'Отмена',
+    fastBookingDescription: "Хотите быстро забронировать столик? Просто позвоните нам или используйте онлайн-форму.",
+    callToBook: "Позвонить",
+    phoneNumberLabel: "Телефон для бронирования",
+  },
+  en: {
+    reservationTitle: 'Table Reservation',
+    restaurant: 'Restaurant',
+    menu: 'Menu',
+    cart: 'Cart',
+    profile: 'Profile',
+    reservation: 'Reserve',
+    bookTable: 'Book a Table',
+    selectDate: 'Select Date',
+    selectTime: 'Select Time',
+    numberOfGuests: 'Number of Guests',
+    guest: 'guest',
+    guests: 'guests',
+    yourName: 'Your Name',
+    enterYourName: 'Enter your name',
+    phoneNumber: 'Phone Number',
+    enterPhoneNumber: '+992 XXX XX XX XX',
+    additionalWishes: 'Additional Wishes',
+    specialWishes: 'Special wishes or comments',
+    book: 'Book Now',
+    availableTables: 'Available Tables',
+    pickTimeAndGuests: 'Select time and number of guests to see available tables',
+    loadError: 'Failed to load tables',
+    noImage: 'No image',
+    free: 'Available',
+    busy: 'Occupied',
+    capacity: 'Capacity',
+    hall: 'Hall',
+    selected: 'Selected',
+    choose: 'Choose',
+    noTables: 'No tables available for selected parameters',
+    pleaseChooseTable: 'Please select a table',
+    popular: 'Popular',
+    mainDishes: 'Main Dishes',
+    appetizers: 'Appetizers',
+    salads: 'Salads',
+    drinks: 'Drinks',
+    new: 'New',
+    addToCart: 'Add to Cart',
+    emptyCart: 'Cart is empty',
+    emptyCartDescription: 'Add dishes from the menu to place an order',
+    startShopping: 'Go to Menu',
+    items: 'items',
+    orderSummary: 'Order Summary',
+    subtotal: 'Subtotal',
+    deliveryFee: 'Delivery Fee',
+    tax: 'Tax',
+    total: 'Total',
+    proceedToCheckout: 'Proceed to Checkout',
+    checkout: 'Checkout',
+    contactInfo: 'Contact Information',
+    fullName: 'Full Name',
+    deliveryMethod: 'Delivery Method',
+    delivery: 'Delivery',
+    pickup: 'Pickup',
+    deliveryAddress: 'Delivery Address',
+    comment: 'Comment',
+    paymentMethod: 'Payment Method',
+    creditCard: 'Credit Card',
+    cash: 'Cash',
+    placeOrder: 'Place Order',
+    orderConfirmed: 'Order Confirmed!',
+    orderConfirmedDescription: 'Your order has been accepted and sent to the kitchen. We will contact you for confirmation.',
+    estimatedDelivery: 'Delivery time: 30-45 minutes',
+    estimatedPickup: 'Preparation time: 20-30 minutes',
+    backToMenu: 'Back to Menu',
+    enterName: 'Enter your name',
+    enterPhone: 'Enter phone number',
+    enterAddress: 'Enter delivery address',
+    orderComment: 'Order comment',
+    workingHours: '08:00 - 23:00',
+    orderHistory: 'Order History',
+    settings: 'Settings',
+    loading: 'Loading...',
+    error: 'Error',
+    tryAgain: 'Try Again',
+    selectDeliveryMethod: 'Select delivery method',
+    required: 'Required field',
+    khujand: 'Khujand',
+    forelRestaurant: 'Forel Restaurant',
+    reservationSubtitle: 'Reserve a Table',
+    heroSubtitle: "Fine cuisine in the heart of Khujand",
+    reserveCtaSub: "Book a table →",
+    menuCtaSub: "View menu →",
+    address: "Khujand, Syrdaryinskaya St., b/n",
+    deliveryLabel: "Delivery",
+    bookingLabel: "Reservations",
+    email: <>Email:<br/>info@forelrest.com</>,
+    daily: "Open daily",
+    workHours: "8:00 – 23:00",
+    aboutUs: "About Us",
+    aboutUsTitle: "About Forel Restaurant",
+    aboutUsWelcome: <>Welcome to the premium restaurant complex — Forel.<br/>Where taste meets atmosphere, and every detail creates the mood.</>,
+    aboutUsLocation: <>📍 In the heart of Khujand, on the picturesque banks of the Syr Darya, there is a restaurant that you want to talk about, that you want to return to, and that is impossible to forget.</>,
+    aboutUsCuisine: <>🌍 World cuisine in one place:<br/>Author's presentation, national traditions, exquisite Eastern European classics, subtle Japanese aesthetics, soulful Georgian cuisine, and the lightness of Italian flavors.<br/>Every dish is thought out to the smallest detail.</>,
+    aboutUsSignature: <>🐟 Our signature dish is grilled trout.<br/>Fresh fish, prepared with soul, has become a true symbol of taste and style of the "Forel" restaurant.</>,
+    aboutUsWhyChoose: <>💫 Why choose us?</>,
+    aboutUsFeatures: <>— Spacious banquet hall for 200 guests for the most beautiful weddings and events of your life.<br/>— 17 stylish private rooms with capacity from 6 to 70 people — each with unique interior and comfort.<br/>— Two verandas and terrace with picturesque view of the Syr Darya.<br/>— One of the verandas is decorated with an elegant waterfall, creating an atmosphere of coziness and tranquility.<br/>— Abundance of live plants, especially on the verandas, fills the space with freshness and natural harmony.</>,
+    aboutUsTogether: <>👨‍👩‍👧‍👦 It's pleasant to be here together — with family, friends, loved ones.<br/>"Forel" restaurant is not just dinner. It's a memory that you will return to again and again.</>,
+    aboutUsCome: <>✨ Come for the atmosphere, stay for the taste.<br/>We are here to surprise.</>,
+    change: 'Change',
+    addressNotSpecified: 'Address not specified',
+    viewPreviousOrders: 'View previous orders',
+    support: 'Support',
+    aboutApp: 'About App',
+    version: 'Version 1.0.0',
+    deliveryPhone: '111 30 7777',
+    bookingPhone: '88 202 7777',
+    emailAddress: 'info@forelrest.com',
+    save: 'Save',
+    cancel: 'Cancel',
+    fastBookingDescription: "Want to book a table quickly? Just call us or use the online form.",
+    callToBook: "Call",
+    phoneNumberLabel: "Booking phone",
+  },
+  tj: {
+    heroSubtitle: "Ошпазии болаззат дар дили Хуҷанд",
+    bookTable: "Захира кардани миз",
+    reserveCtaSub: "Захира кардани миз →",
+    menu: "Меню",
+    menuCtaSub: "Дидани меню →",
+    address: "ш. Хуҷанд, к.Сырдарё, б/н",
+    deliveryLabel: "Расондан",
+    bookingLabel: "Захира",
+    email: <>Почта:<br/>info@forelrest.com</>,
+    daily: "Ҳар рӯз",
+    workHours: "8:00 – 23:00",
+    reservationSubtitle: 'Бронкунӣ миз',
+    reservationTitle: 'Бронкунӣ миз',
+    restaurant: 'Ресторан',
+    cart: 'Савад',
+    profile: 'Профил',
+    reservation: 'Бронкунӣ',
+    selectDate: 'Санаро интихоб кунед',
+    selectTime: 'Вақтро интихоб кунед',
+    numberOfGuests: 'Шумораи меҳмонон',
+    guest: 'меҳмон',
+    guests: 'меҳмонон',
+    yourName: 'Номи шумо',
+    enterYourName: 'Номи худро ворид кунед',
+    phoneNumber: 'Рақами телефон',
+    enterPhoneNumber: '+992 XXX XX XX XX',
+    additionalWishes: 'Хоҳишҳои иловагӣ',
+    specialWishes: 'Хоҳишҳои махсус ё шарҳҳо',
+    book: 'Бронкунӣ',
+    availableTables: 'Мизҳои дастрас',
+    pickTimeAndGuests: 'Барои дидани мизҳо вақт ва шумораи меҳмононро интихоб кунед',
+    loadError: 'Хатогии боркунии рӯйхати мизҳо',
+    noImage: 'Сурат нест',
+    free: 'Озод',
+    busy: 'Ишғолшуда',
+    capacity: 'Ғунҷоиш',
+    hall: 'Толор',
+    selected: 'Интихобшуда',
+    choose: 'Интихоб кунед',
+    noTables: 'Барои параметрҳои интихобшуда миз нест',
+    pleaseChooseTable: 'Лутфан, мизро интихоб кунед',
+    popular: 'Маъмул',
+    mainDishes: 'Хӯрокҳои асосӣ',
+    appetizers: 'Пешхӯрок',
+    salads: 'Салатҳо',
+    drinks: 'Нӯшокиҳо',
+    new: 'Нав',
+    addToCart: 'Ба савад',
+    emptyCart: 'Савад холист',
+    emptyCartDescription: 'Барои фармоиш кардан хӯрокҳо аз меню илова кунед',
+    startShopping: 'Ба меню',
+    items: 'қалам',
+    orderSummary: 'Ҷамъбасти фармоиш',
+    subtotal: 'Ҷамъи миёна',
+    deliveryFee: 'Расонидан',
+    tax: 'Андоз',
+    total: 'Ҷамъ',
+    proceedToCheckout: 'Фармоиш додан',
+    checkout: 'Тасдиқи фармоиш',
+    contactInfo: 'Маълумоти тамос',
+    fullName: 'Номи пурра',
+    deliveryMethod: 'Усули гирифтан',
+    delivery: 'Расонидан',
+    pickup: 'Худам мегирам',
+    deliveryAddress: 'Суроғаи расонидан',
+    comment: 'Тавзеҳот',
+    paymentMethod: 'Усули пардохт',
+    creditCard: 'Корти бонкӣ',
+    cash: 'Нақд',
+    placeOrder: 'Фармоиш додан',
+    orderConfirmed: 'Фармоиш тасдиқ шуд!',
+    orderConfirmedDescription: 'Фармоиши шумо қабул шуд ва ба ошхона фиристода шуд. Мо барои тасдиқ бо шумо тамос хоҳем гирифт.',
+    estimatedDelivery: 'Вақти расонидан: 30-45 дақиқа',
+    estimatedPickup: 'Вақти тайёр кардан: 20-30 дақиқа',
+    backToMenu: 'Бозгашт ба меню',
+    enterName: 'Номи худро ворид кунед',
+    enterPhone: 'Рақами телефонро ворид кунед',
+    enterAddress: 'Суроғаи расонидан ворид кунед',
+    orderComment: 'Тавзеҳот ба фармоиш',
+    workingHours: '08:00 - 23:00',
+    orderHistory: 'Таърихи фармоишҳо',
+    settings: 'Танзимот',
+    loading: 'Бор мешавад...',
+    error: 'Хатогӣ',
+    tryAgain: 'Аз нав кӯшиш кунед',
+    selectDeliveryMethod: 'Усули гирифтанро интихоб кунед',
+    required: 'Майдони зарурӣ',
+    khujand: 'ш. Хуҷанд',
+    forelRestaurant: 'Ресторани Форел',
+    aboutUs: 'Дар бораи мо',
+    aboutUsTitle: 'Дар бораи ресторани Форел',
+    aboutUsWelcome: <>Хуш омадед ба маҷмӯи ресторани премиум-синф — Форел.<br/>Дар куҷо таъм бо атмосфера вохӯрда, ҳар як тафсилот эҳсосро эҷод мекунад.</>,
+    aboutUsLocation: <>📍 Дар дили Хуҷанд, дар соҳили зебои Сирдарё, ресторане ҷойгир аст, ки дар бораи он гап задан мехоҳед, ба он бозгашт кардан мехоҳед ва онро фаромӯш кардан мумкин нест.</>,
+    aboutUsCuisine: <>🌍 Ошпазии ҷаҳон дар як ҷо:<br/>Тақдимкунии муаллиф, анъанаҳои миллӣ, классикаи зебои шарқӣ-аврупоӣ, эстетикаи нозуки японӣ, ошпазии руҳании гурҷӣ ва сабукии таъмҳои итолиёӣ.<br/>Ҳар як хӯрок то хаттои хурдтар андешида шудааст.</>,
+    aboutUsSignature: <>🐟 Хӯроки фирмавии мо — форел дар мангал.<br/>Моҳии таза, бо руҳ тайёршуда, рамзи воқеии таъм ва услуби ресторани "Форел" шудааст.</>,
+    aboutUsWhyChoose: <>💫 Чаро мо?</>,
+    aboutUsFeatures: <>— Толори банкетӣ васеъ барои 200 меҳмон барои зебатарин тӯйҳо ва воқеаҳои ҳаёти шумо.<br/>— 17 ҳуҷраи услубӣ бо ғунҷоиш аз 6 то 70 нафар — ҳар як бо интерьери ягона ва роҳат.<br/>— Ду веранда ва терраса бо намоиши зебои Сирдарё.<br/>— Яке аз верандаҳо бо обшори нозук ороиш дода шуда, атмосфераи роҳат ва оромиро эҷод мекунад.<br/>— Бисёр гиёҳони зинда, хусусан дар верандаҳо, фазоро бо тазагӣ ва ҳамоҳангии табиӣ пур мекунанд.</>,
+    aboutUsTogether: <>👨‍👩‍👧‍👦 Дар ин ҷо бояд якҷо буд — бо оила, дӯстон, дӯстдоштагон.<br/>Ресторани "Форел" танҳо шом нест. Ин хотираест, ки шумо боз ва боз ба он бозмегардед.</>,
+    aboutUsCome: <>✨ Барои атмосфера биёед, барои таъм бимонед.<br/>Мо дар ин ҷо ҳастем, то тааҷҷуб созем.</>,
+    change: 'Тағйир додан',
+    addressNotSpecified: 'Суроға муайян нашудааст',
+    viewPreviousOrders: 'Дидани фармоишҳои қаблӣ',
+    support: 'Дастгирӣ',
+    aboutApp: 'Дар бораи барнома',
+    version: 'Версия 1.0.0',
+    deliveryPhone: '111 30 7777',
+    bookingPhone: '88 202 7777',
+    emailAddress: 'info@forelrest.com',
+    save: 'Сабт кардан',
+    cancel: 'Бекор кардан',
+    fastBookingDescription: "Мехоҳед зуд мизро брон кунед? Танҳо ба мо занг занед ё онлайн брон кунед.",
+    callToBook: "Занг задан",
+    phoneNumberLabel: "Телефони бронкунӣ",
+  },
+  zh: {
+    restaurant: '餐厅',
+    menu: '菜单',
+    cart: '购物车',
+    profile: '个人资料',
+    reservation: '预订',
+    bookTable: '预订餐桌',
+    selectDate: '选择日期',
+    selectTime: '选择时间',
+    numberOfGuests: '客人数量',
+    guest: '客人',
+    guests: '客人',
+    yourName: '您的姓名',
+    enterYourName: '请输入您的姓名',
+    phoneNumber: '电话号码',
+    enterPhoneNumber: '+992 XXX XX XX XX',
+    additionalWishes: '额外愿望',
+    specialWishes: '特殊愿望或评论',
+    book: '立即预订',
+    availableTables: '可用餐桌',
+    pickTimeAndGuests: '选择时间和客人数量以查看可用餐桌',
+    loadError: '加载餐桌失败',
+    noImage: '无图片',
+    free: '可用',
+    busy: '已占用',
+    capacity: '容量',
+    hall: '大厅',
+    selected: '已选择',
+    choose: '选择',
+    noTables: '所选参数没有可用餐桌',
+    pleaseChooseTable: '请选择餐桌',
+    popular: '热门',
+    mainDishes: '主菜',
+    appetizers: '开胃菜',
+    salads: '沙拉',
+    drinks: '饮品',
+    new: '新品',
+    addToCart: '加入购物车',
+    emptyCart: '购物车为空',
+    emptyCartDescription: '从菜单添加菜品以下单',
+    startShopping: '前往菜单',
+    items: '件商品',
+    orderSummary: '订单摘要',
+    subtotal: '小计',
+    deliveryFee: '配送费',
+    tax: '税费',
+    total: '总计',
+    proceedToCheckout: '继续结账',
+    checkout: '结账',
+    contactInfo: '联系信息',
+    fullName: '全名',
+    deliveryMethod: '配送方式',
+    delivery: '配送',
+    pickup: '自取',
+    deliveryAddress: '配送地址',
+    address: '苦盏，锡尔河街，无门牌号',
+    comment: '评论',
+    paymentMethod: '支付方式',
+    creditCard: '信用卡',
+    cash: '现金',
+    placeOrder: '下单',
+    orderConfirmed: '订单已确认！',
+    orderConfirmedDescription: '您的订单已被接受并发送到厨房。我们将联系您确认。',
+    estimatedDelivery: '配送时间：30-45分钟',
+    estimatedPickup: '准备时间：20-30分钟',
+    backToMenu: '返回菜单',
+    enterName: '请输入您的姓名',
+    enterPhone: '请输入电话号码',
+    enterAddress: '请输入配送地址',
+    orderComment: '订单评论',
+    workingHours: '08:00 - 23:00',
+    orderHistory: '订单历史',
+    settings: '设置',
+    loading: '加载中...',
+    error: '错误',
+    tryAgain: '重试',
+    selectDeliveryMethod: '选择配送方式',
+    required: '必填字段',
+    khujand: '苦盏',
+    forelRestaurant: '鳟鱼餐厅',
+    reservationTitle: '餐桌预订',
+    reservationSubtitle: '预订餐桌',
+    heroSubtitle: '苦盏市中心的美味佳肴',
+    reserveCtaSub: '预订餐桌 →',
+    menuCtaSub: '查看菜单 →',
+    deliveryLabel: '配送',
+    bookingLabel: '预订',
+    email: <>邮箱：<br/>info@forelrest.com</>,
+    daily: '每日营业',
+    workHours: '8:00 – 23:00',
+    aboutUs: '关于我们',
+    aboutUsTitle: '关于鳟鱼餐厅',
+    aboutUsWelcome: <>欢迎来到高端餐厅综合体 — 鳟鱼。<br/>在这里，美味与氛围相遇，每一个细节都营造着心情。</>,
+    aboutUsLocation: <>📍 在苦盏市中心，锡尔河风景如画的河岸上，坐落着一家让人想要谈论、想要重返、无法忘怀的餐厅。</>,
+    aboutUsCuisine: <>🌍 世界美食汇聚一处：<br/>创意呈现，民族传统，精致的东欧经典，细腻的日本美学，温馨的格鲁吉亚美食和轻盈的意大利风味。<br/>每一道菜都经过精心设计。</>,
+    aboutUsSignature: <>🐟 我们的招牌菜 — 烤鳟鱼。<br/>用心烹制的新鲜鱼类，已成为"鳟鱼"餐厅品味和风格的真正象征。</>,
+    aboutUsWhyChoose: <>💫 为什么选择我们？</>,
+    aboutUsFeatures: <>— 宽敞的宴会厅可容纳200位客人，为您人生中最美丽的婚礼和活动。<br/>— 17间风格各异的包间，容量从6人到70人不等 — 每间都有独特的装修和舒适度。<br/>— 两个阳台和露台，可欣赏锡尔河的如画景色。<br/>— 其中一个阳台装饰着优雅的瀑布，营造温馨宁静的氛围。<br/>— 丰富的活植物，特别是在阳台上，为空间带来清新和自然和谐。</>,
+    aboutUsTogether: <>👨‍👩‍👧‍👦 在这里与家人、朋友、爱人共度时光是愉快的。<br/>"鳟鱼"餐厅不仅仅是一顿晚餐。这是一段您会一次又一次重温的回忆。</>,
+    aboutUsCome: <>✨ 为氛围而来，为美味而留。<br/>我们在这里，为您带来惊喜。</>,
+    change: '修改',
+    addressNotSpecified: '地址未指定',
+    viewPreviousOrders: '查看之前的订单',
+    support: '支持',
+    aboutApp: '关于应用',
+    version: '版本 1.0.0',
+    deliveryPhone: '111 30 7777',
+    bookingPhone: '88 202 7777',
+    emailAddress: 'info@forelrest.com',
+    save: '保存',
+    cancel: '取消',
+    fastBookingDescription: '想要快速预订餐桌？请致电我们或使用在线表单。',
+    callToBook: '致电',
+    phoneNumberLabel: '预订电话',
+  }
+};
+
+interface LanguageContextType {
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  translations: Translations;
+}
+
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+export function LanguageProvider({ children }: { children: React.ReactNode }) {
+  const [language, setLanguageState] = useState<Language>('ru');
+
+  // Обертка для setLanguage с сохранением в localStorage
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('selectedLanguage', lang);
+    }
+  };
+
+  // При инициализации читаем язык из localStorage или Telegram
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('selectedLanguage');
+      if (saved && ['ru','en','tj','zh'].includes(saved)) {
+        setLanguageState(saved as Language);
+        return;
+      }
+      if (window.Telegram?.WebApp) {
+        const telegramUser = window.Telegram.WebApp.initDataUnsafe?.user;
+        if (telegramUser?.language_code) {
+          const telegramLang = telegramUser.language_code;
+          if (telegramLang === 'en') {
+            setLanguageState('en');
+          } else if (telegramLang === 'tg' || telegramLang === 'tj') {
+            setLanguageState('tj');
+          } else if (telegramLang === 'zh' || telegramLang === 'zh-CN' || telegramLang === 'zh-TW') {
+            setLanguageState('zh');
+          } else {
+            setLanguageState('ru');
+          }
+          return;
+        }
+      }
+      setLanguageState('ru');
+    }
+  }, []);
+
+  return (
+    <LanguageContext.Provider value={{ language, setLanguage, translations: translations[language] }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+}
+
+export function useLanguage() {
+  const context = useContext(LanguageContext);
+  if (!context) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  return context;
+}

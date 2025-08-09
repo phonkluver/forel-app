@@ -1,0 +1,23 @@
+{
+  "name": "telegram-restaurant-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot for restaurant orders and reservations",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js",
+    "dev": "nodemon bot.js"
+  },
+  "keywords": ["telegram", "bot", "restaurant", "orders"],
+  "author": "Restaurant Team",
+  "license": "MIT",
+  "dependencies": {
+    "node-telegram-bot-api": "^0.64.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+} 
