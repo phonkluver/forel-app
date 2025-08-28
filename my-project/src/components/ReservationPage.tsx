@@ -26,7 +26,7 @@ export function ReservationPage() {
   const { language, translations } = useLanguage();
   const [formData, setFormData] = useState<ReservationForm>({
     date: new Date().toISOString().split('T')[0], // Сегодняшняя дата
-    time: '18:00',
+    time: '109:00',
     guests: 2,
     name: '',
     phone: '',
@@ -35,7 +35,7 @@ export function ReservationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  // Генерация времени с 8:00 до 22:00
+  // Генерация времени с 09:00 до 22:00
   const timeSlots = [];
   for (let hour = 8; hour <= 22; hour++) {
     timeSlots.push(`${hour.toString().padStart(2, '0')}:00`);
@@ -68,7 +68,7 @@ export function ReservationPage() {
         setIsSubmitted(true);
         setFormData({
           date: new Date().toISOString().split('T')[0],
-          time: '18:00',
+          time: '109:00',
           guests: 2,
           name: '',
           phone: '',

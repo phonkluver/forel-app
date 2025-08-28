@@ -1,12 +1,19 @@
-import React from 'react';
-import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, ShoppingCart } from 'lucide-react';
+import { Minus, Plus, Trash2, ShoppingCart } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
-import { useLanguage, getLocalizedDishName, getLocalizedDishDescription } from '../hooks/useLanguage';
-import { MenuItem } from '../utils/api';
+import { useLanguage } from '../hooks/useLanguage';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+
+// Локальные типы данных - совместимые с useCart
+interface MenuItem {
+  id: string;
+  name: { ru: string; en: string; tj: string; zh: string };
+  price: number;
+  category: string;
+  images: string[];
+  isActive: boolean;
+}
 
 interface CartItem {
   item: MenuItem;
@@ -20,7 +27,6 @@ interface CartComponentProps {
   onCheckout: () => void;
   getCartTotal: () => number;
   getDeliveryFee: () => number;
-  getTax: () => number;
   getFinalTotal: () => number;
 }
 
@@ -31,14 +37,12 @@ export function CartComponent({
   onCheckout,
   getCartTotal,
   getDeliveryFee,
-  getTax,
   getFinalTotal
 }: CartComponentProps) {
   const { language, translations } = useLanguage();
 
   const subtotal = getCartTotal();
   const deliveryFee = getDeliveryFee();
-  const tax = getTax();
   const total = getFinalTotal();
 
   return (
@@ -75,8 +79,7 @@ export function CartComponent({
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
             {cart.map((cartItem) => {
-              const localizedName = getLocalizedDishName(cartItem.item.name, language);
-              const localizedDescription = getLocalizedDishDescription(cartItem.item.description, language);
+              const localizedName = cartItem.item.name[language as keyof typeof cartItem.item.name] || cartItem.item.name.ru;
               
               return (
                 <Card key={cartItem.item.id} className="border-amber-100">
@@ -84,7 +87,7 @@ export function CartComponent({
                     <div className="flex flex-col sm:flex-row gap-4">
                       <div className="w-full sm:w-24 h-24 sm:h-24 flex-shrink-0">
                         <ImageWithFallback
-                          src={cartItem.item.image}
+                          src={cartItem.item.images[0] || '/images/default-dish.jpg'}
                           alt={localizedName}
                           className="w-full h-full object-cover rounded-lg"
                         />
@@ -94,9 +97,7 @@ export function CartComponent({
                         <h3 className="font-semibold text-foreground truncate text-base sm:text-lg">
                           {localizedName}
                         </h3>
-                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mb-2">
-                          {localizedDescription}
-                        </p>
+
                         <p className="font-bold text-amber-700 text-base sm:text-lg">
                           {cartItem.item.price} TJS
                         </p>
@@ -173,6 +174,10 @@ export function CartComponent({
                 <div className="flex justify-between text-base sm:text-lg font-bold">
                   <span className="text-foreground">{translations.total}</span>
                   <span className="text-amber-700">{total} TJS</span>
+                </div>
+                
+                <div className="text-xs text-red-600 bg-white p-2 rounded-lg border border-amber-300">
+                  * Цена может отличаться в связи с тем, что точный вес порций может варьироваться
                 </div>
                 
                 <Button

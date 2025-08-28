@@ -19,7 +19,7 @@ export const ruTranslations = {
   reservationLabel: 'Бронирование',
   email: 'info@forelrest.com',
   businessHours: 'Время работы',
-  workingHours: 'Ежедневно с 08:00 до 23:00',
+  workingHours: 'Ежедневно с 09:00 до 23:00',
   khujand: 'г. Худжанд, улица Сырдарьинская б/н',
   
   // Home Page
@@ -123,7 +123,7 @@ export const ruTranslations = {
   needHelp: 'Нужна помощь с бронированием?',
   needHelpDesc: 'Наши администраторы всегда готовы помочь вам с выбором стола',
   callUs: 'Позвоните нам',
-  dailyHours: 'Ежедневно с 08:00 до 23:00',
+  dailyHours: 'Ежедневно с 09:00 до 23:00',
   onlineBooking: 'Онлайн бронирование',
   available247: 'Доступно 24/7',
   instantConfirmation: 'Мгновенное подтверждение',
@@ -131,7 +131,7 @@ export const ruTranslations = {
   needHelpWithBooking: 'Нужна помощь с бронированием?',
   needHelpWithBookingDesc: 'Наши администраторы всегда готовы помочь вам с выбором стола',
   callUsForBooking: 'Позвоните нам',
-  dailyHoursBooking: 'Ежедневно с 08:00 до 23:00',
+  dailyHoursBooking: 'Ежедневно с 09:00 до 23:00',
   onlineBookingAvailable: 'Онлайн бронирование',
   available247Booking: 'Доступно 24/7',
   instantConfirmationBooking: 'Мгновенное подтверждение',
@@ -301,7 +301,7 @@ export const ruTranslations = {
   bestSeatsDesc: 'Возможность выбрать столик у окна, в VIP зоне или в тихом уголке ресторана',
   orderDelivery: 'Заказать доставку',
   instagramtitle: 'Подписывайтесь на нас в Instagram',
-  instagramDesc: 'С Больше вдохновения, идей и реальных свадеб!',
+  instagramDesc: '✨ Погрузитесь в мир роскошных свадеб, изысканного декора и волшебных моментов! ✨',
   instagramButton: 'Посетить Instagram',
   
   // Additional translations for pages

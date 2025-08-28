@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Menu, User, MapPin, Clock, Phone, CalendarDays, Home, UtensilsCrossed } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { BrowserRouter } from 'react-router-dom';
+import { ShoppingCart, User, MapPin, Clock, Phone, CalendarDays, Home, UtensilsCrossed } from 'lucide-react';
 import { Button } from './components/ui/button';
 import { Badge } from './components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card';
@@ -21,16 +22,15 @@ function AppContent() {
   const [currentPage, setCurrentPage] = useState<Page>('language-selection');
   const { language, setLanguage, translations } = useLanguage();
   const [hasSelectedLanguage, setHasSelectedLanguage] = useState(false);
-  const { 
-    cart, 
-    addToCart, 
-    removeFromCart, 
-    updateQuantity, 
-    clearCart, 
+  const {
+    cart,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
     getCartTotal,
     getCartItemsCount,
     getDeliveryFee,
-    getTax,
     getFinalTotal
   } = useCart();
 
@@ -38,17 +38,17 @@ function AppContent() {
   useEffect(() => {
     if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp;
-      
+
       tg.ready();
       tg.expand();
-      
+
       // Настройка цветов для Telegram WebApp
       tg.setHeaderColor('#ffffff');
       tg.setBackgroundColor('#f9fafb');
-      
+
       // Включение подтверждения закрытия
       tg.enableClosingConfirmation();
-      
+
       // Настройка BackButton
       tg.BackButton.onClick(() => {
         if (currentPage === 'checkout') {
@@ -59,7 +59,7 @@ function AppContent() {
           setCurrentPage('menu');
         }
       });
-      
+
       // Показ/скрытие BackButton
       if (currentPage !== 'menu') {
         tg.BackButton.show();
@@ -86,8 +86,8 @@ function AppContent() {
         return <HomePage onNavigate={setCurrentPage} />;
       case 'menu':
         return (
-          <MenuComponent 
-            addToCart={addToCart} 
+          <MenuComponent
+            addToCart={addToCart}
             cart={cart}
             updateQuantity={updateQuantity}
           />
@@ -123,8 +123,8 @@ function AppContent() {
         return <AboutUsPage onBack={() => setCurrentPage('home')} />;
       default:
         return (
-          <MenuComponent 
-            addToCart={addToCart} 
+          <MenuComponent
+            addToCart={addToCart}
             cart={cart}
             updateQuantity={updateQuantity}
           />
@@ -225,13 +225,12 @@ function AppContent() {
               onClick={() => setCurrentPage('home')}
               className="flex flex-col items-center justify-center w-14 gap-1"
             >
-              <Home 
-                className={currentPage === 'home' ? 'gold-text h-6 w-6' : 'h-6 w-6 text-gray-400'} 
+              <Home
+                className={currentPage === 'home' ? 'gold-text h-6 w-6' : 'h-6 w-6 text-gray-400'}
               />
-              <span className={`text-xs font-medium ${
-                currentPage === 'home' ? 'gold-text' : 'text-gray-500'
-              }`}>
-                Главная
+              <span className={`text-xs font-medium ${currentPage === 'home' ? 'gold-text' : 'text-gray-500'
+                }`}>
+                {translations.restaurant}
               </span>
             </button>
 
@@ -239,13 +238,12 @@ function AppContent() {
               onClick={() => setCurrentPage('menu')}
               className="flex flex-col items-center justify-center w-14 gap-1"
             >
-              <UtensilsCrossed 
-                className={currentPage === 'menu' ? 'gold-text h-6 w-6' : 'h-6 w-6 text-gray-400'} 
+              <UtensilsCrossed
+                className={currentPage === 'menu' ? 'gold-text h-6 w-6' : 'h-6 w-6 text-gray-400'}
               />
-              <span className={`text-xs font-medium ${
-                currentPage === 'menu' ? 'gold-text' : 'text-gray-500'
-              }`}>
-                Меню
+              <span className={`text-xs font-medium ${currentPage === 'menu' ? 'gold-text' : 'text-gray-500'
+                }`}>
+                {translations.menu}
               </span>
             </button>
 
@@ -253,18 +251,17 @@ function AppContent() {
               onClick={() => setCurrentPage('cart')}
               className="flex flex-col items-center justify-center w-14 gap-1 relative"
             >
-              <ShoppingCart 
-                className={currentPage === 'cart' ? 'gold-text h-6 w-6' : 'h-6 w-6 text-gray-400'} 
+              <ShoppingCart
+                className={currentPage === 'cart' ? 'gold-text h-6 w-6' : 'h-6 w-6 text-gray-400'}
               />
               {cartItemsCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {cartItemsCount}
                 </span>
               )}
-              <span className={`text-xs font-medium ${
-                currentPage === 'cart' ? 'gold-text' : 'text-gray-500'
-              }`}>
-                Корзина
+              <span className={`text-xs font-medium ${currentPage === 'cart' ? 'gold-text' : 'text-gray-500'
+                }`}>
+                {translations.cart}
               </span>
             </button>
 
@@ -272,13 +269,12 @@ function AppContent() {
               onClick={() => setCurrentPage('reservation')}
               className="flex flex-col items-center justify-center w-14 gap-1"
             >
-              <CalendarDays 
-                className={currentPage === 'reservation' ? 'gold-text h-6 w-6' : 'h-6 w-6 text-gray-400'} 
+              <CalendarDays
+                className={currentPage === 'reservation' ? 'gold-text h-6 w-6' : 'h-6 w-6 text-gray-400'}
               />
-              <span className={`text-xs font-medium ${
-                currentPage === 'reservation' ? 'gold-text' : 'text-gray-500'
-              }`}>
-                Столы
+              <span className={`text-xs font-medium ${currentPage === 'reservation' ? 'gold-text' : 'text-gray-500'
+                }`}>
+                {translations.reservation}
               </span>
             </button>
 
@@ -286,13 +282,12 @@ function AppContent() {
               onClick={() => setCurrentPage('profile')}
               className="flex flex-col items-center justify-center w-14 gap-1"
             >
-              <User 
-                className={currentPage === 'profile' ? 'gold-text h-6 w-6' : 'h-6 w-6 text-gray-400'} 
+              <User
+                className={currentPage === 'profile' ? 'gold-text h-6 w-6' : 'h-6 w-6 text-gray-400'}
               />
-              <span className={`text-xs font-medium ${
-                currentPage === 'profile' ? 'gold-text' : 'text-gray-500'
-              }`}>
-                Профиль
+              <span className={`text-xs font-medium ${currentPage === 'profile' ? 'gold-text' : 'text-gray-500'
+                }`}>
+                {translations.profile}
               </span>
             </button>
           </div>
@@ -314,7 +309,7 @@ function ProfileComponent() {
     if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
       const user = window.Telegram.WebApp.initDataUnsafe?.user;
       setTelegramUser(user);
-      
+
       // Загружаем сохраненный адрес из localStorage
       const saved = localStorage.getItem('userDeliveryAddress');
       if (saved) {
@@ -352,7 +347,9 @@ function ProfileComponent() {
               </div>
               <div>
                 <p className="font-medium text-gray-900">
-                  {telegramUser ? `${telegramUser.first_name} ${telegramUser.last_name || ''}`.trim() : 'Telegram User'}
+                  {telegramUser
+                    ? `${telegramUser.first_name} ${telegramUser.last_name || ''}`.trim()
+                    : (telegramUser?.username ? `@${telegramUser.username}` : 'Гость')}
                 </p>
                 <p className="text-sm text-gray-500">
                   {telegramUser?.username ? `@${telegramUser.username}` : 'Пользователь Telegram'}
@@ -381,7 +378,7 @@ function ProfileComponent() {
                   </Button>
                 )}
               </div>
-              
+
               {isEditingAddress ? (
                 <div className="mt-3 space-y-2">
                   <Input
@@ -450,8 +447,6 @@ function ProfileComponent() {
     </div>
   );
 }
-
-import { BrowserRouter } from 'react-router-dom';
 
 export default function App() {
   return (

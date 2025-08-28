@@ -10,29 +10,28 @@ import {
 } from "./ui/card";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { MenuItem } from "../types/menu";
 
 interface MenuCardProps {
-  title: string;
-  ingredients: string;
-  imageUrl: string;
-  images?: string[]; // Массив дополнительных изображений для карусели
-  price?: number;
+  item: MenuItem;
+  language: string;
   onAddToCart?: () => void;
 }
 
 export function MenuCard({ 
-  title, 
-  ingredients, 
-  imageUrl,
-  images,
-  price,
+  item, 
+  language,
   onAddToCart 
 }: MenuCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   
-  const allImages = images && images.length > 0 ? images : [imageUrl];
+  const allImages = item.images && item.images.length > 0 ? item.images : ['/categories/default.jpg'];
   const hasMultipleImages = allImages.length > 1;
+  
+  // Получаем локализованные названия
+  const title = item.name[language as keyof typeof item.name] || item.name.ru;
+  const description = item.description[language as keyof typeof item.description] || item.description.ru;
 
   // Автоматическое переключение изображений при наведении
   useEffect(() => {
@@ -138,13 +137,13 @@ export function MenuCard({
       <CardHeader className="pt-4">
         <CardTitle className="text-lg font-medium leading-tight">{title}</CardTitle>
         <CardDescription className="text-sm mt-2 text-muted-foreground">
-          {ingredients}
+          {description}
         </CardDescription>
       </CardHeader>
-      {price && (
+      {item.price && (
         <CardFooter className="flex justify-between items-center">
           <div className="text-lg font-semibold">
-            {price.toLocaleString('ru-RU')} TJS
+            {item.price.toLocaleString('ru-RU')} ₽
           </div>
           {onAddToCart && (
             <button

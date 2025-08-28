@@ -12,15 +12,12 @@ RUN npm ci --only=production
 # Копируем исходный код
 COPY . .
 
-# Создаем директории для данных и загрузок
-RUN mkdir -p data uploads
-
-# Устанавливаем права доступа
-RUN chown -R node:node /app
-USER node
+# Создаем директорию для загрузок
+RUN mkdir -p public/uploads
 
 # Открываем порт
 EXPOSE 3001
 
 # Запускаем приложение
 CMD ["npm", "start"]
+

@@ -7,21 +7,17 @@ export interface MenuItemImage {
 
 export interface MenuItem {
   id: string;
-  name: string;
-  description: string;
+  name: { ru: string; en: string; tj: string; zh: string };
+  description: { ru: string; en: string; tj: string; zh: string };
   price: number;
-  image: string;
-  images: MenuItemImage[];
+  images: string[];
   category: string;
-  category_id?: string;
-  available: boolean;
-  popular: boolean;
-  sort_order: number;
+  isActive: boolean;
 }
 
 export interface MenuCategory {
   id: string;
-  name: string;
-  categoryImage?: string;
+  name: { ru: string; en: string; tj: string; zh: string };
+  image: string;
   items: MenuItem[];
 }

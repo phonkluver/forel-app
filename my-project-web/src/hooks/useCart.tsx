@@ -1,15 +1,13 @@
 import { useState, useEffect } from 'react';
 
-// Локальные типы данных
+// Локальные типы данных - совместимые с MenuComponent
 interface MenuItem {
   id: string;
-  name: string;
-  description: string;
+  name: { ru: string; en: string; tj: string; zh: string };
   price: number;
-  image: string;
   category: string;
-  available: boolean;
-  popular: boolean;
+  images: string[];
+  isActive: boolean;
 }
 
 // Интерфейс CartItem для совместимости с CartComponent

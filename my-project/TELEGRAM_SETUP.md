@@ -5,8 +5,8 @@
 В файле `src/utils/telegram.ts` настроены следующие параметры:
 
 ```typescript
-const TELEGRAM_BOT_TOKEN = '8489499457:AAEYJsk8jN3qynY2J4DoPSlqU1ghMdwlbSQ';
-const ADMIN_CHAT_ID = '7347563606';
+const TELEGRAM_BOT_TOKEN = '8227763242:AAFsuP_RUM2Ubh8IqYxVb9ZyI__lPuQkfho';
+const ADMIN_CHAT_ID = '-4729513227';
 ```
 
 ## Что отправляется в Telegram

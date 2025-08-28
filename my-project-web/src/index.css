@@ -287,3 +287,13 @@
 .animate-slide-down {
   animation: slideDown 1s ease forwards;
 }
+
+/* Скрытие скроллбара для горизонтальной прокрутки */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}

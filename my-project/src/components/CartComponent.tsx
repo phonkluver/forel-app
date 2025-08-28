@@ -187,6 +187,10 @@ export function CartComponent({
                   <span>{formatPrice(finalTotal)}</span>
                 </div>
               </div>
+              
+              <div className="mt-3 text-xs text-red-600 bg-gradient-to-r from-amber-400 to-amber-600 p-2 rounded-lg border border-amber-300">
+                * Цена может отличаться в связи с тем, что точный вес порций может варьироваться
+              </div>
             </div>
           </CardContent>
         </Card>

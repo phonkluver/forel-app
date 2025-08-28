@@ -100,27 +100,34 @@ export function Footer({ setCurrentPage }: FooterProps) {
               <li className="flex flex-col space-y-2">
                 <div className="flex items-center space-x-2 sm:space-x-3">
                   <Phone className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500 flex-shrink-0" />
-                  <span className="text-gray-300 text-xs sm:text-sm">+992 918 123 456</span>
+                  <div className="text-gray-300 text-xs sm:text-sm">
+                    {translations.deliveryLabel}: {translations.phoneDelivery}
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2 sm:space-x-3">
-                  <Phone className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500 flex-shrink-0" />
-                  <span className="text-gray-300 text-xs sm:text-sm">+992 918 654 321</span>
+                <div className="flex items-center space-x-2 sm:space-x-3 ml-6">
+                  <div className="text-gray-300 text-xs sm:text-sm">
+                    {translations.reservationMade}: {translations.phoneReservation}
+                  </div>
                 </div>
               </li>
               <li className="flex items-center space-x-2 sm:space-x-3">
+                <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500 flex-shrink-0" />
+                <span className="text-gray-300 text-xs sm:text-sm">info@forelrest.com</span>
+              </li>
+              <li className="flex items-center space-x-2 sm:space-x-3">
                 <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500 flex-shrink-0" />
-                <span className="text-gray-300 text-xs sm:text-sm">{translations.workHours}</span>
+                <span className="text-gray-300 text-xs sm:text-sm">{translations.workingHours}</span>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Bottom Section */}
+        {/* Bottom Bar */}
         <div className="border-t border-gray-800 pt-6 sm:pt-8">
           <div className="flex justify-center items-center">
-            <div className="text-gray-400 text-xs sm:text-sm text-center">
-              © 2024 {translations.forelRestaurant}. {translations.allRightsReserved}
-            </div>
+            <p className="text-gray-400 text-xs sm:text-sm text-center px-2">
+              &copy; 2025 {translations.forelRestaurant}. {translations.allRightsReserved}
+            </p>
           </div>
         </div>
       </div>

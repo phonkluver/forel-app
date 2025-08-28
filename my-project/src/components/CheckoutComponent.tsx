@@ -129,10 +129,10 @@ export function CheckoutComponent({
         deliveryMethod: formData.delivery_method,
         address: formData.delivery_method === 'delivery' ? formData.address : undefined,
         comment: formData.comment || undefined,
-        items: cart.map(item => ({
-          name: item.item.name,
+        items: cart.filter(item => item && item.name && item.price).map(item => ({
+          name: item.name,
           quantity: item.quantity,
-          price: item.item.price
+          price: item.price
         })),
         total: getFinalTotal()
       };

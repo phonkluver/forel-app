@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  # API Server
+  api-server:
+    build:
+      context: ./api-server
+      dockerfile: Dockerfile
+    container_name: forel-api-server
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./api-server/public:/app/public
+    environment:
+      - PORT=3001
+    restart: unless-stopped
+    networks:
+      - forel-network
+
+  # Telegram Bot
+  telegram-bot:
+    build:
+      context: ./telegram-bot
+      dockerfile: Dockerfile
+    container_name: forel-telegram-bot
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - API_BASE_URL=http://api-server:3001/api
+    depends_on:
+      - api-server
+    restart: unless-stopped
+    networks:
+      - forel-network
+
+  # Web Application (forelrest.com)
+  web-app:
+    build:
+      context: ./my-project-web
+      dockerfile: Dockerfile
+    container_name: forel-web-app
+    ports:
+      - "8080:80"
+    depends_on:
+      - api-server
+    restart: unless-stopped
+    networks:
+      - forel-network
+
+  # Telegram WebApp (telegram.forelrest.com)
+  telegram-webapp:
+    build:
+      context: ./my-project
+      dockerfile: Dockerfile
+    container_name: forel-telegram-webapp
+    ports:
+      - "8081:80"
+    depends_on:
+      - api-server
+    restart: unless-stopped
+    networks:
+      - forel-network
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: forel-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - web-app
+      - telegram-webapp
+      - api-server
+    restart: unless-stopped
+    networks:
+      - forel-network
+
+networks:
+  forel-network:
+    driver: bridge
+

@@ -160,6 +160,9 @@ bot.on('web_app_data', async (msg) => {
     // Send order confirmation to user
     await sendOrderConfirmation(chatId, orderData);
     
+    // Send order notification to admin
+    await sendOrderToAdmin(chatId, msg.from, orderData);
+    
   } catch (error) {
     console.error('❌ Error processing web app data:', error);
     await bot.sendMessage(chatId, '❌ Произошла ошибка при обработке заказа. Попробуйте еще раз.');
@@ -189,10 +192,10 @@ async function sendOrderConfirmation(chatId, orderData) {
     
     items.forEach(item => {
       const itemTotal = item.price * item.quantity;
-      message += `• ${getRussianDishName(item.name)} x${item.quantity} - ${itemTotal} TJS\n`;
+      message += `• ${getRussianDishName(item.name)} x${item.quantity} - ${itemTotal} ₽\n`;
     });
     
-    message += `\n💰 <b>Итого к оплате:</b> ${total} TJS\n\n`;
+    message += `\n💰 <b>Итого к оплате:</b> ${total} ₽\n\n`;
     message += `⏰ <b>Время заказа:</b> ${new Date().toLocaleString('ru-RU')}\n\n`;
     message += `Спасибо за заказ! Мы свяжемся с вами в ближайшее время. 🙏`;
     
@@ -228,6 +231,58 @@ async function sendReviewToAdmin(userChatId, user, reviewText) {
     
   } catch (error) {
     console.error('❌ Error sending review to admin:', error);
+  }
+}
+
+// Function to send order notification to admin
+async function sendOrderToAdmin(userChatId, user, orderData) {
+  try {
+    const adminChatId = process.env.ADMIN_CHAT_ID;
+    
+    if (!adminChatId) {
+      console.error('❌ ADMIN_CHAT_ID not configured');
+      return;
+    }
+    
+    const { items, total, delivery_method, delivery_address, customer_name, payment_method, comment } = orderData;
+    
+    const userName = user.first_name || 'Неизвестный';
+    const userLastName = user.last_name || '';
+    const userUsername = user.username ? `@${user.username}` : 'Не указан';
+    
+    let adminMessage = `🛒 <b>НОВЫЙ ЗАКАЗ ОТ КЛИЕНТА</b>\n\n`;
+    adminMessage += `👤 <b>Имя клиента:</b> ${customer_name || `${userName} ${userLastName}`.trim()}\n`;
+    adminMessage += `👤 <b>Telegram:</b> ${userName} ${userLastName}\n`;
+    adminMessage += `🆔 <b>Username:</b> ${userUsername}\n`;
+    adminMessage += `💬 <b>Chat ID:</b> ${userChatId}\n`;
+    adminMessage += `📦 <b>Способ доставки:</b> ${delivery_method}\n`;
+    
+    if (delivery_address) {
+      adminMessage += `📍 <b>Адрес доставки:</b> ${delivery_address}\n`;
+    }
+    
+    adminMessage += `💳 <b>Способ оплаты:</b> ${payment_method}\n`;
+    
+    if (comment) {
+      adminMessage += `💬 <b>Комментарий:</b> ${comment}\n`;
+    }
+    
+    adminMessage += `\n🍽 <b>Заказанные блюда:</b>\n`;
+    
+    items.forEach(item => {
+      const itemTotal = item.price * item.quantity;
+      adminMessage += `• ${getRussianDishName(item.name)} x${item.quantity} - ${itemTotal} ₽\n`;
+    });
+    
+    adminMessage += `\n💰 <b>Итого к оплате:</b> ${total} ₽\n`;
+    adminMessage += `📅 <b>Дата заказа:</b> ${new Date().toLocaleString('ru-RU')}\n\n`;
+    adminMessage += `━━━━━━━━━━━━━━━━━━━━`;
+    
+    await bot.sendMessage(adminChatId, adminMessage, { parse_mode: 'HTML' });
+    console.log(`✅ Order notification sent to admin from chat ${userChatId}`);
+    
+  } catch (error) {
+    console.error('❌ Error sending order notification to admin:', error);
   }
 }
 

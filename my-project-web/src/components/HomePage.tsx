@@ -24,7 +24,6 @@ import { Badge } from './ui/badge';
 import { useLanguage } from '../hooks/useLanguage';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { AnimatedBlock } from './AnimatedBlock';
-import { apiService } from '../services/api';
 
 interface HomePageProps {
   onNavigate: (page: string) => void;
@@ -36,12 +35,14 @@ export function HomePage({ onNavigate }: HomePageProps) {
   const { language, translations } = useLanguage();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
-  const [heroImages, setHeroImages] = useState([
+
+  // Hero gallery images
+  const heroImages = [
     '/hero/hero-1.jpg',
     '/hero/hero-2.jpg',
     '/hero/hero-3.jpg',
     '/hero/hero.jpg',
-  ]);
+  ];
 
   // Gallery images
   const galleryImages = [
@@ -52,25 +53,6 @@ export function HomePage({ onNavigate }: HomePageProps) {
     '/we/we-5.png',
     '/we/we-6.png',
   ];
-
-  // Загрузка баннеров из API
-  useEffect(() => {
-    const loadBanners = async () => {
-      try {
-        const apiBanners = await apiService.getActiveBanners();
-        if (apiBanners.length > 0) {
-          // Используем баннеры из API как hero изображения
-          const bannerImages = apiBanners.map(banner => banner.image);
-          setHeroImages(bannerImages);
-        }
-      } catch (error) {
-        console.error('Ошибка загрузки баннеров:', error);
-        // Оставляем дефолтные изображения в случае ошибки
-      }
-    };
-
-    loadBanners();
-  }, []);
 
   // Auto-rotate hero images
   useEffect(() => {
@@ -113,31 +95,31 @@ export function HomePage({ onNavigate }: HomePageProps) {
     switch (language) {
       case 'en':
         return [
-          { number: '5+', label: 'Years Experience', icon: Award },
+          { number: '4+', label: 'Years Experience', icon: Award },
           { number: '20 000+', label: 'Happy Guests', icon: Users },
           { number: '150+', label: 'Menu Items', icon: Utensils },
-          { number: '4.9', label: 'Rating', icon: Star }
+          { number: '5+', label: 'Rating', icon: Star }
         ];
       case 'tj':
         return [
-                  { number: '5+', label: translations.yearsExperience, icon: Award },
+                  { number: '4+', label: translations.yearsExperience, icon: Award },
         { number: '20 000+', label: translations.happyGuests, icon: Users },
         { number: '150+', label: translations.dishesInMenu, icon: Utensils },
-        { number: '4.9', label: translations.rating, icon: Star }
+        { number: '5', label: translations.rating, icon: Star }
         ];
       case 'zh':
         return [
-          { number: '5+', label: '年经验', icon: Award },
-          { number: '20 000+', label: '满意客户', icon: Users },
-          { number: '150+', label: '菜品种类', icon: Utensils },
-          { number: '4.9', label: '评分', icon: Star }
+          { number: '4+', label: '???', icon: Award },
+          { number: '20 000+', label: '????', icon: Users },
+          { number: '150+', label: '????', icon: Utensils },
+          { number: '5', label: '??', icon: Star }
         ];
       default: // ru
         return [
-    { number: '5+', label: translations.yearsExperience, icon: Award },
+    { number: '4+', label: translations.yearsExperience, icon: Award },
     { number: '20 000+', label: translations.happyGuests, icon: Users },
     { number: '150+', label: translations.dishesInMenu, icon: Utensils },
-    { number: '4.9', label: translations.rating, icon: Star }
+    { number: '5', label: translations.rating, icon: Star }
         ];
     }
   };
@@ -176,9 +158,9 @@ export function HomePage({ onNavigate }: HomePageProps) {
       case 'en':
         return 'Every detail of our restaurant is created to give you an unforgettable experience';
       case 'tj':
-        return 'Ҳар як ҷузъиёти ресторани мо барои таҷрибаи фаромӯшнашаванда офарида шудааст';
+        return '?�� �� ?������ ��������� �� ����� ��?����� �����?���������� ������� �������';
       case 'zh':
-        return '我们餐厅的每一个细节都为您打造难忘的体验';
+        return '????????????????????';
       default:
         return translations.everyDetailCreated;
     }
@@ -189,9 +171,9 @@ export function HomePage({ onNavigate }: HomePageProps) {
       case 'en':
         return 'Visit Us Today';
       case 'tj':
-        return 'Имрӯз мо ба ҳам таҷо кунед';
+        return '���?� �� �� ?�� ��?� �����';
       case 'zh':
-        return '今天就来拜访我们';
+        return '????????';
       default:
         return translations.visitUsToday;
     }
@@ -202,9 +184,9 @@ export function HomePage({ onNavigate }: HomePageProps) {
       case 'en':
         return 'Discover an unforgettable culinary experience in the heart of Khujand';
       case 'tj':
-        return 'Таҷрибаи ошпазии фаромӯшнашавандаро дар қалби Хуҷанд кашф кунед';
+        return '��?����� ������� �����?������������ ��� ?���� ��?��� ���� �����';
       case 'zh':
-        return '在苦盏心脏发现难忘的烹饪体验';
+        return '??????????????';
       default:
         return translations.discoverCulinaryExperience;
     }
@@ -228,13 +210,13 @@ export function HomePage({ onNavigate }: HomePageProps) {
                 alt={`Restaurant ambiance ${index + 1}`}
                 className="w-full h-full object-cover transform scale-105 motion-safe:animate-ken-burns"
               />
-              {/* Градиентный оверлей */}
+              {/* ����������� ������� */}
               <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/70" />
-              {/* Эффект виньетки */}
+              {/* ������ �������� */}
               <div className="absolute inset-0 bg-radial-gradient" style={{
                 background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.4) 100%)'
               }} />
-              {/* Блики */}
+              {/* ����� */}
               <div className="absolute inset-0">
                 <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 via-transparent to-amber-500/10" />
                 <div className="absolute inset-0 bg-gradient-to-bl from-amber-500/5 via-transparent to-amber-500/5" />
@@ -243,11 +225,11 @@ export function HomePage({ onNavigate }: HomePageProps) {
           ))}
         </div>
         
-        {/* Декоративные элементы */}
+        {/* ������������ �������� */}
         <div className="absolute inset-0">
-          {/* Верхний градиент */}
+          {/* ������� �������� */}
           <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/50 to-transparent" />
-          {/* Нижний градиент */}
+          {/* ������ �������� */}
           <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/50 to-transparent" />
         </div>
 
@@ -258,7 +240,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
   }`}
 >
   <div className="max-w-5xl mx-auto">
-    {/* Заголовок и подзаголовок */}
+    {/* ��������� � ������������ */}
     <div className="flex flex-col items-center text-center mb-8 px-2">
       <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight tracking-tight text-white drop-shadow-2xl">
         {translations.restaurantForel}
@@ -268,7 +250,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
       </p>
     </div>
 
-    {/* Кнопки */}
+    {/* ������ */}
     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center px-2">
       <Button
         onClick={() => onNavigate('menu')}
@@ -383,11 +365,11 @@ export function HomePage({ onNavigate }: HomePageProps) {
 
         </div>
       </section>
-      {/* Instagram Section – Restaurant */}
+      {/* Instagram Section � Restaurant */}
   <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-12 sm:py-16 lg:py-20">
     <AnimatedBlock delay={200} direction="up" duration={1000}>
       <Badge className="mb-4 golden-gradient text-white px-4 py-2 text-black">
-        🍽️ Instagram
+        Instagram
       </Badge>
       <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
   {translations.instagramRestaurantTitle}

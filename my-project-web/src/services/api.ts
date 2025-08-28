@@ -1,318 +1,191 @@
-// API сервис для работы с единым API сервером
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? '/api' 
+  : 'http://localhost:3001/api';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
-
-interface ApiResponse<T> {
+export interface ApiResponse<T> {
   success: boolean;
   data?: T;
   error?: string;
   message?: string;
 }
 
-interface MenuItem {
+export interface MenuItem {
   id: string;
-  name_ru: string;
-  name_en: string;
-  name_tj: string;
-  name_cn: string;
-  description_ru: string;
-  description_en: string;
-  description_tj: string;
-  description_cn: string;
+  name: {
+    ru: string;
+    en: string;
+    tj: string;
+    cn: string;
+  };
+  description: {
+    ru: string;
+    en: string;
+    tj: string;
+    cn: string;
+  };
   price: number;
-  image: string;
-  category_id: string;
-  is_active: boolean;
-  sort_order: number;
-  category_name_ru?: string;
-  category_name_en?: string;
-  category_name_tj?: string;
-  category_name_cn?: string;
+  category: string;
+  images: string[];
+  isActive: boolean;
 }
 
-interface Banner {
+export interface Banner {
   id: string;
   image: string;
   isActive: boolean;
   sortOrder: number;
 }
 
-interface Category {
+export interface Category {
   id: string;
-  name_ru: string;
-  name_en: string;
-  name_tj: string;
-  name_cn: string;
+  name: {
+    ru: string;
+    en: string;
+    tj: string;
+    cn: string;
+  };
   image: string;
-  sort_order: number;
-  is_active: boolean;
 }
 
-interface AuthResponse {
-  token: string;
-  message: string;
+export interface AuthResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
 }
 
 class ApiService {
-  private token: string | null = null;
-
-  constructor() {
-    // Восстанавливаем токен из localStorage при инициализации
-    this.token = localStorage.getItem('admin_token');
-  }
-
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<ApiResponse<T>> {
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
-    
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    };
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      ...options,
+    });
 
-    if (this.token) {
-      headers.Authorization = `Bearer ${this.token}`;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    try {
-      const response = await fetch(url, {
-        ...options,
-        headers,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'API request failed');
-      }
-
-      return data;
-    } catch (error) {
-      console.error('API request error:', error);
-      throw error;
-    }
+    return response.json();
   }
 
   // Аутентификация
-  async authenticateAdmin(adminCode: string): Promise<AuthResponse> {
-    const response = await this.request<AuthResponse>('/auth/admin', {
+  async verifyAdmin(code: string): Promise<AuthResponse> {
+    return this.request<AuthResponse>('/admin/verify', {
       method: 'POST',
-      body: JSON.stringify({ adminCode }),
+      body: JSON.stringify({ code }),
     });
-
-    if (response.success && response.data) {
-      this.token = response.data.token;
-      localStorage.setItem('admin_token', this.token);
-    }
-
-    return response.data!;
-  }
-
-  // Проверка токена
-  async verifyToken(): Promise<boolean> {
-    try {
-      await this.request('/auth/verify');
-      return true;
-    } catch {
-      this.logout();
-      return false;
-    }
-  }
-
-  logout(): void {
-    this.token = null;
-    localStorage.removeItem('admin_token');
   }
 
   // Меню
   async getMenu(): Promise<MenuItem[]> {
-    const response = await this.request<MenuItem[]>('/menu');
-    return response.data || [];
+    return this.request<MenuItem[]>('/menu');
   }
 
-  async getMenuCategories(): Promise<string[]> {
-    const response = await this.request<string[]>('/menu/categories');
-    return response.data || [];
-  }
-
-  async getMenuByCategory(category: string): Promise<MenuItem[]> {
-    const response = await this.request<MenuItem[]>(`/menu/category/${category}`);
-    return response.data || [];
-  }
-
-  async addMenuItem(formData: FormData): Promise<MenuItem> {
+  async addMenuItem(data: FormData): Promise<ApiResponse<MenuItem>> {
     const response = await fetch(`${API_BASE_URL}/menu`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${this.token}`,
-        // Не устанавливаем Content-Type для FormData, браузер сам установит
+        'x-admin-code': '0202',
       },
-      body: formData,
+      body: data,
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Failed to add menu item');
-    }
-
-    return data.data;
+    return response.json();
   }
 
-  async updateMenuItem(id: string, formData: FormData): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/menu/${id}`, {
+  async updateMenuItem(id: string, data: FormData): Promise<ApiResponse<MenuItem>> {
+    const response = await fetch(`${API_BASE_URL}/menu${id}`, {
       method: 'PUT',
       headers: {
-        Authorization: `Bearer ${this.token}`,
-        // Не устанавливаем Content-Type для FormData, браузер сам установит
+        'x-admin-code': '0202',
       },
-      body: formData,
+      body: data,
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Failed to update menu item');
-    }
+    return response.json();
   }
 
-  async deleteMenuItem(id: string): Promise<void> {
-    await this.request(`/menu/${id}`, {
+  async deleteMenuItem(id: string): Promise<ApiResponse<void>> {
+    return this.request<ApiResponse<void>>(`/menu${id}`, {
       method: 'DELETE',
+      headers: {
+        'x-admin-code': '0202',
+      },
     });
   }
 
   // Баннеры
   async getBanners(): Promise<Banner[]> {
-    const response = await this.request<Banner[]>('/banners');
-    return response.data || [];
+    return this.request<Banner[]>('/banners');
   }
 
-  async getActiveBanners(): Promise<Banner[]> {
-    const response = await this.request<Banner[]>('/banners/active');
-    return response.data || [];
-  }
-
-  async addBanner(formData: FormData): Promise<Banner> {
+  async addBanner(data: FormData): Promise<ApiResponse<Banner>> {
     const response = await fetch(`${API_BASE_URL}/banners`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${this.token}`,
+        'x-admin-code': '0202',
       },
-      body: formData,
+      body: data,
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Failed to add banner');
-    }
-
-    return data.data;
-  }
-
-  async updateBanner(id: string, formData: FormData): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/banners/${id}`, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${this.token}`,
-      },
-      body: formData,
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Failed to update banner');
-    }
-  }
-
-  async deleteBanner(id: string): Promise<void> {
-    await this.request(`/banners/${id}`, {
-      method: 'DELETE',
-    });
-  }
-
-  async toggleBanner(id: string): Promise<{ id: string; isActive: boolean }> {
-    const response = await this.request<{ id: string; isActive: boolean }>(
-      `/banners/${id}/toggle`,
-      {
-        method: 'PUT',
-      }
-    );
-    return response.data!;
-  }
-
-  async reorderBanners(bannerIds: string[]): Promise<void> {
-    await this.request('/banners/reorder', {
-      method: 'PUT',
-      body: JSON.stringify({ bannerIds }),
-    });
-  }
-
-  // Category methods
-  async getCategories(): Promise<Category[]> {
-    const response = await this.request<Category[]>('/categories');
-    return response.data || [];
-  }
-
-  async getActiveCategories(): Promise<Category[]> {
-    const response = await fetch(`${API_BASE_URL}/categories/active`);
-    if (!response.ok) throw new Error('Failed to fetch active categories');
     return response.json();
   }
 
-  async addCategory(formData: FormData): Promise<Category> {
+  async updateBanner(id: string, data: FormData): Promise<ApiResponse<Banner>> {
+    const response = await fetch(`${API_BASE_URL}/banners/${id}`, {
+      method: 'PUT',
+      headers: {
+        'x-admin-code': '0202',
+      },
+      body: data,
+    });
+    return response.json();
+  }
+
+  async deleteBanner(id: string): Promise<ApiResponse<void>> {
+    return this.request<ApiResponse<void>>(`/banners/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'x-admin-code': '0202',
+      },
+    });
+  }
+
+  // Категории
+  async getCategories(): Promise<Category[]> {
+    return this.request<Category[]>('/categories');
+  }
+
+  async addCategory(data: FormData): Promise<ApiResponse<Category>> {
     const response = await fetch(`${API_BASE_URL}/categories`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${this.token}`,
+        'x-admin-code': '0202',
       },
-      body: formData,
+      body: data,
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Failed to add category');
-    }
-
-    return data;
+    return response.json();
   }
 
-  async updateCategory(id: string, formData: FormData): Promise<Category> {
+  async updateCategory(id: string, data: FormData): Promise<ApiResponse<Category>> {
     const response = await fetch(`${API_BASE_URL}/categories/${id}`, {
       method: 'PUT',
       headers: {
-        Authorization: `Bearer ${this.token}`,
+        'x-admin-code': '0202',
       },
-      body: formData,
+      body: data,
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Failed to update category');
-    }
-
-    return data;
+    return response.json();
   }
 
-  async deleteCategory(id: string): Promise<void> {
-    await this.request(`/categories/${id}`, {
+  async deleteCategory(id: string): Promise<ApiResponse<void>> {
+    return this.request<ApiResponse<void>>(`/categories/${id}`, {
       method: 'DELETE',
+      headers: {
+        'x-admin-code': '0202',
+      },
     });
-  }
-
-  async toggleCategory(id: string): Promise<Category> {
-    const response = await this.request<Category>(`/categories/${id}/toggle`, {
-      method: 'PATCH',
-    });
-    return response.data!;
   }
 }
 
 export const apiService = new ApiService();
-export type { MenuItem, Banner, AuthResponse };

@@ -5,7 +5,6 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { telegramService } from '@/utils/telegram';
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { AnimatedBlock } from "./AnimatedBlock";
-import { apiService } from '../services/api';
 
 interface HomePageProps {
   onNavigate: (page: 'home' | 'menu' | 'cart' | 'checkout' | 'profile' | 'reservation' | 'about-us') => void;
@@ -16,41 +15,22 @@ const GOLD_GRADIENT =
 
 export function HomePage({ onNavigate }: HomePageProps) {
   const { translations } = useLanguage();
-  const [heroImage, setHeroImage] = React.useState('/hero-white.jpg');
-
-  // Р—Р°РіСЂСѓР·РєР° Р±Р°РЅРЅРµСЂРѕРІ РёР· API
-  React.useEffect(() => {
-    const loadBanners = async () => {
-      try {
-        const apiBanners = await apiService.getActiveBanners();
-        if (apiBanners.length > 0) {
-          // РСЃРїРѕР»СЊР·СѓРµРј РїРµСЂРІС‹Р№ Р±Р°РЅРЅРµСЂ РєР°Рє hero РёР·РѕР±СЂР°Р¶РµРЅРёРµ
-          setHeroImage(apiBanners[0].image);
-        }
-      } catch (error) {
-        console.error('РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё Р±Р°РЅРЅРµСЂРѕРІ:', error);
-        // РћСЃС‚Р°РІР»СЏРµРј РґРµС„РѕР»С‚РЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РІ СЃР»СѓС‡Р°Рµ РѕС€РёР±РєРё
-      }
-    };
-
-    loadBanners();
-  }, []);
 
   return (
     <div className="min-h-screen">
       {/* Hero Section - Full Screen */}
       <div className="relative h-[60vh]">
-        {/* Р¤РѕРЅРѕРІРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ */}
+        {/* Фоновое изображение */}
         <ImageWithFallback
-          src={heroImage}
+          src="/hero-white.jpg"
           alt="Restaurant interior"
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105"
         />
         
-        {/* Р—Р°С‚РµРјРЅРµРЅРёРµ РїРѕРІРµСЂС… РёР·РѕР±СЂР°Р¶РµРЅРёСЏ */}
+        {/* Затемнение поверх изображения */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
 
-        {/* Р›РѕРіРѕС‚РёРї + Р·Р°РіРѕР»РѕРІРѕРє */}
+        {/* Логотип + заголовок */}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-6">
           <img
             src="/favicon.png"
@@ -128,18 +108,22 @@ export function HomePage({ onNavigate }: HomePageProps) {
               }
             />
             <InfoItem
+              icon={<Mail className="h-5 w-5" style={{ color: "#D7A962" }} />}
+              text={translations.emailAddress}
+            />
+            <InfoItem
               icon={<Clock className="h-5 w-5" style={{ color: "#D7A962" }} />}
               text={
-                <div>
-                  <p className="font-semibold">{translations.workingHours}</p>
-                  <p className="text-sm text-gray-600">{translations.workHours}</p>
-                </div>
+                <>
+                  <p>{translations.daily}</p>
+                  <p className="font-medium">{translations.workHours}</p>
+                </>
               }
             />
           </Card>
         </AnimatedBlock>
 
-        {/* Р›РѕРєР°Р»СЊРЅР°СЏ Р°РЅРёРјР°С†РёСЏ Рё СЃС‚РёР»Рё РґР»СЏ РІРёРґРµРѕ */}
+        {/* Локальная анимация и стили для видео */}
         <style>{`
           @keyframes float {
             0% { transform: translateY(0) }
@@ -147,14 +131,14 @@ export function HomePage({ onNavigate }: HomePageProps) {
             100% { transform: translateY(0) }
           }
           
-          /* РћРїС‚РёРјРёР·Р°С†РёСЏ РІРёРґРµРѕ РґР»СЏ РјРѕР±РёР»СЊРЅС‹С… СѓСЃС‚СЂРѕР№СЃС‚РІ */
+          /* Оптимизация видео для мобильных устройств */
           @media (max-width: 768px) {
             video {
               object-position: center;
             }
           }
           
-          /* РЈР»СѓС‡С€РµРЅРёРµ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЊРЅРѕСЃС‚Рё РІРёРґРµРѕ */
+          /* Улучшение производительности видео */
           video {
             will-change: transform;
             transform: translateZ(0);
@@ -174,7 +158,7 @@ function InfoItem({ icon, text }: { icon: React.ReactNode; text: React.ReactNode
   );
 }
 
-/** РЈРЅРёРІРµСЂСЃР°Р»СЊРЅР°СЏ В«Р·РѕР»РѕС‚Р°СЏВ» РєРЅРѕРїРєР° СЃ С„РёСЂРјРµРЅРЅС‹Рј РіСЂР°РґРёРµРЅС‚РѕРј */
+/** Универсальная «золотая» кнопка с фирменным градиентом */
 function GoldButton({
   children,
   onClick,

@@ -23,7 +23,7 @@ npm install
 
 ```env
 # Telegram Bot Configuration
-BOT_TOKEN=8489499457:AAEYJsk8jN3qynY2J4DoPSlqU1ghMdwlbSQ
+BOT_TOKEN=8227763242:AAFsuP_RUM2Ubh8IqYxVb9ZyI__lPuQkfho
 
 # WebApp URL (замените на ваш реальный URL)
 WEBAPP_URL=https://your-domain.com/my-project

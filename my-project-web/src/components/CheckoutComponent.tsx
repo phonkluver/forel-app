@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ArrowLeft, MapPin, Clock, Check, User, Phone, Package, Truck } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowLeft, Check, User, Package, Truck } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Input } from './ui/input';
@@ -9,16 +9,14 @@ import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { useLanguage } from '../hooks/useLanguage';
 import { telegramService } from '../utils/telegramService';
 
-// Локальные типы данных
+// Локальные типы данных - совместимые с useCart
 interface MenuItem {
   id: string;
-  name: string;
-  description: string;
+  name: { ru: string; en: string; tj: string; zh: string };
   price: number;
-  image: string;
   category: string;
-  available: boolean;
-  popular: boolean;
+  images: string[];
+  isActive: boolean;
 }
 
 interface CartItem {
@@ -33,7 +31,6 @@ interface CheckoutComponentProps {
   getFinalTotal: () => number;
   getCartTotal: () => number;
   getDeliveryFee: () => number;
-  getTax: () => number;
 }
 
 export function CheckoutComponent({
@@ -42,8 +39,7 @@ export function CheckoutComponent({
   onBack,
   getFinalTotal,
   getCartTotal,
-  getDeliveryFee,
-  getTax
+  getDeliveryFee
 }: CheckoutComponentProps) {
   const { language, translations } = useLanguage();
   const [orderPlaced, setOrderPlaced] = useState(false);
@@ -68,12 +64,12 @@ export function CheckoutComponent({
       setError(translations.enterName || 'Введите ваше имя');
       return;
     }
-    
+
     if (!formData.phone.trim()) {
       setError(translations.phoneNumber || 'Введите номер телефона');
       return;
     }
-    
+
     if (formData.delivery_method === 'delivery' && !formData.address.trim()) {
       setError(translations.deliveryAddress || 'Введите адрес доставки');
       return;
@@ -82,10 +78,10 @@ export function CheckoutComponent({
     try {
       setIsLoading(true);
       setError(null);
-      
+
       // Генерируем ID заказа
       const newOrderId = 'ORDER-' + Date.now().toString().slice(-6);
-      
+
       // Отправляем заказ в Telegram
       const orderData = {
         orderId: newOrderId,
@@ -95,7 +91,7 @@ export function CheckoutComponent({
         address: formData.delivery_method === 'delivery' ? formData.address : undefined,
         comment: formData.comment || undefined,
         items: cart.map(item => ({
-          name: item.item.name,
+          name: item.item.name[language as keyof typeof item.item.name] || item.item.name.ru,
           quantity: item.quantity,
           price: item.item.price
         })),
@@ -103,7 +99,7 @@ export function CheckoutComponent({
       };
 
       const telegramSuccess = await telegramService.sendOrderToTelegram(orderData);
-      
+
       if (telegramSuccess) {
         setOrderId(newOrderId);
         setOrderPlaced(true);
@@ -111,7 +107,7 @@ export function CheckoutComponent({
       } else {
         setError(translations.error || 'Ошибка при отправке заказа');
       }
-      
+
     } catch (error) {
       console.error('Ошибка оформления заказа:', error);
       setError(translations.error || 'Произошла ошибка при оформлении заказа');
@@ -260,15 +256,15 @@ export function CheckoutComponent({
                   <div key={cartItem.item.id} className="flex justify-between items-center">
                     <div className="flex items-center space-x-3">
                       <img
-                        src={cartItem.item.image}
-                        alt={cartItem.item.name}
+                        src={cartItem.item.images[0] || '/images/default-dish.jpg'}
+                        alt={cartItem.item.name[language as keyof typeof cartItem.item.name] || cartItem.item.name.ru}
                         className="w-12 h-12 object-cover rounded"
                         onError={(e) => {
                           e.currentTarget.src = '/loading.png';
                         }}
                       />
                       <div>
-                        <p className="font-medium">{cartItem.item.name}</p>
+                        <p className="font-medium">{cartItem.item.name[language as keyof typeof cartItem.item.name] || cartItem.item.name.ru}</p>
                         <p className="text-sm text-gray-500">
                           {cartItem.quantity} × {formatPrice(cartItem.item.price)}
                         </p>
@@ -290,10 +286,7 @@ export function CheckoutComponent({
                   <span>{translations.delivery || 'Доставка'}:</span>
                   <span>{formatPrice(getDeliveryFee())}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>{translations.tax || 'НДС'}:</span>
-                  <span>{formatPrice(getTax())}</span>
-                </div>
+
                 <div className="flex justify-between font-bold text-lg border-t pt-2">
                   <span>{translations.total || 'Итого'}:</span>
                   <span>{formatPrice(getFinalTotal())}</span>

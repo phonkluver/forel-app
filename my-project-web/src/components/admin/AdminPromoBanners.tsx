@@ -2,43 +2,79 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
-import { Plus, Edit, Trash2, Eye, EyeOff, Upload } from 'lucide-react';
-import { apiService, Banner } from '../../services/api';
+import { Plus, Edit, Trash2, Eye, EyeOff, Upload, Loader2 } from 'lucide-react';
+
+// Типы данных
+interface Banner {
+  id: string;
+  image: string;
+  isActive: boolean;
+  sortOrder: number;
+}
 
 export function AdminPromoBanners() {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState('');
 
-  // Загрузка баннеров из API
-  useEffect(() => {
-    loadBanners();
-  }, []);
+  // Получаем код админа из localStorage
+  const getAdminCode = () => localStorage.getItem('adminCode') || '';
 
+  // Загружаем баннеры с сервера
   const loadBanners = async () => {
     try {
       setIsLoading(true);
-      setError(null);
-      const bannersData = await apiService.getBanners();
-      setBanners(bannersData);
-    } catch (err) {
-      setError('Ошибка загрузки баннеров');
-      console.error('Error loading banners:', err);
+      setError('');
+      console.log('🔄 Загрузка баннеров...');
+      
+      const response = await fetch('/api/admin/banners', {
+        headers: {
+          'x-admin-code': getAdminCode(),
+        },
+      });
+      
+      console.log(`📡 Ответ загрузки баннеров: ${response.status} ${response.statusText}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('📊 Загружено баннеров:', data.length, data);
+        setBanners(data);
+      } else {
+        const errorText = await response.text();
+        console.error('❌ Ошибка загрузки баннеров:', errorText);
+        setError(`Ошибка загрузки баннеров: ${response.status} ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error('❌ Ошибка подключения при загрузке баннеров:', error);
+      setError('Ошибка подключения к серверу');
     } finally {
       setIsLoading(false);
     }
   };
 
+  useEffect(() => {
+    loadBanners();
+  }, []);
+
   const handleDelete = async (bannerId: string) => {
     if (confirm('Вы уверены, что хотите удалить этот баннер?')) {
       try {
-        await apiService.deleteBanner(bannerId);
-        setBanners(prev => prev.filter(banner => banner.id !== bannerId));
-      } catch (err) {
-        console.error('Error deleting banner:', err);
-        alert('Ошибка при удалении баннера');
+        const response = await fetch(`/api/banners/${bannerId}`, {
+          method: 'DELETE',
+          headers: {
+            'x-admin-code': getAdminCode(),
+          },
+        });
+
+        if (response.ok) {
+          await loadBanners(); // Перезагружаем данные
+        } else {
+          setError('Ошибка удаления баннера');
+        }
+      } catch (error) {
+        setError('Ошибка подключения к серверу');
       }
     }
   };
@@ -49,113 +85,172 @@ export function AdminPromoBanners() {
   };
 
   const handleAddNew = () => {
+    console.log('➕ Нажата кнопка "Добавить баннер"');
     setEditingBanner(null);
     setShowForm(true);
   };
 
   const handleSaveBanner = async (banner: Banner) => {
     try {
-      if (editingBanner) {
-        // Редактирование
-        await apiService.updateBanner(editingBanner.id, createFormData(banner));
-        setBanners(prev => prev.map(b => 
-          b.id === editingBanner.id ? banner : b
-        ));
-      } else {
-        // Добавление нового
-        const newBanner = await apiService.addBanner(createFormData(banner));
-        setBanners(prev => [...prev, newBanner]);
-      }
-      setShowForm(false);
-      setEditingBanner(null);
-    } catch (err) {
-      console.error('Error saving banner:', err);
-      alert('Ошибка при сохранении баннера');
-    }
-  };
+      console.log('💾 Сохранение баннера:', banner);
+      
+      const formData = new FormData();
+      formData.append('isActive', banner.isActive.toString());
+      formData.append('sortOrder', banner.sortOrder.toString());
 
-  // Создание FormData для загрузки файлов
-  const createFormData = (banner: Banner): FormData => {
-    const formData = new FormData();
-    formData.append('isActive', banner.isActive.toString());
-    formData.append('sortOrder', banner.sortOrder.toString());
-    
-    // Если есть изображение, добавляем его
-    if (banner.image && banner.image.startsWith('data:')) {
-      // Конвертируем base64 в файл
-      const response = fetch(banner.image);
-      response.then(res => res.blob()).then(blob => {
-        formData.append('image', blob, 'banner.jpg');
+      // Если есть новое изображение, добавляем его
+      if (banner.image.startsWith('blob:')) {
+        // Конвертируем blob URL в File
+        const response = await fetch(banner.image);
+        const blob = await response.blob();
+        const file = new File([blob], 'banner.jpg', { type: blob.type });
+        formData.append('image', file);
+        console.log('📁 Добавлен файл изображения');
+      } else {
+        console.log('⚠️ Изображение не является blob URL:', banner.image);
+        setError('Ошибка: изображение не загружено');
+        return;
+      }
+
+      let url = '/api/banners';
+      let method = 'POST';
+
+      if (editingBanner) {
+        url = `/api/banners/${editingBanner.id}`;
+        method = 'PUT';
+      }
+
+      console.log(`🌐 Отправка запроса: ${method} ${url}`);
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'x-admin-code': getAdminCode(),
+        },
+        body: formData,
       });
+
+      console.log(`📡 Ответ сервера: ${response.status} ${response.statusText}`);
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Баннер сохранен:', result);
+        await loadBanners(); // Перезагружаем данные
+        setShowForm(false);
+        setEditingBanner(null);
+        setError(''); // Очищаем ошибки
+      } else {
+        const errorText = await response.text();
+        console.error('❌ Ошибка сохранения:', errorText);
+        setError(`Ошибка сохранения баннера: ${response.status} ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error('❌ Ошибка подключения:', error);
+      setError('Ошибка подключения к серверу');
     }
-    
-    return formData;
   };
 
   const handleToggleActive = async (bannerId: string) => {
     try {
-      const result = await apiService.toggleBanner(bannerId);
-      setBanners(prev => prev.map(banner => 
-        banner.id === bannerId 
-          ? { ...banner, isActive: result.isActive }
-          : banner
-      ));
-    } catch (err) {
-      console.error('Error toggling banner:', err);
-      alert('Ошибка при изменении статуса баннера');
+      const banner = banners.find(b => b.id === bannerId);
+      if (!banner) return;
+
+              const response = await fetch(`/api/banners/${bannerId}`, {
+        method: 'PUT',
+        headers: {
+          'x-admin-code': getAdminCode(),
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          isActive: !banner.isActive,
+          sortOrder: banner.sortOrder,
+        }),
+      });
+
+      if (response.ok) {
+        await loadBanners(); // Перезагружаем данные
+      } else {
+        setError('Ошибка обновления статуса баннера');
+      }
+    } catch (error) {
+      setError('Ошибка подключения к серверу');
     }
   };
 
   const handleMoveUp = async (bannerId: string) => {
     try {
-      const currentIndex = banners.findIndex(b => b.id === bannerId);
-      if (currentIndex > 0) {
+      const index = banners.findIndex(b => b.id === bannerId);
+      if (index > 0) {
         const newBanners = [...banners];
-        [newBanners[currentIndex], newBanners[currentIndex - 1]] = [newBanners[currentIndex - 1], newBanners[currentIndex]];
-        const bannerIds = newBanners.map(b => b.id);
-        await apiService.reorderBanners(bannerIds);
-        setBanners(newBanners.map((b, i) => ({ ...b, sortOrder: i + 1 })));
+        [newBanners[index], newBanners[index - 1]] = [newBanners[index - 1], newBanners[index]];
+        
+        // Обновляем порядок на сервере
+        for (let i = 0; i < newBanners.length; i++) {
+          const response = await fetch(`/api/banners/${newBanners[i].id}`, {
+            method: 'PUT',
+            headers: {
+              'x-admin-code': getAdminCode(),
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              isActive: newBanners[i].isActive,
+              sortOrder: i + 1,
+            }),
+          });
+          if (!response.ok) {
+            setError('Ошибка обновления порядка баннеров');
+            return;
+          }
+        }
+        
+        await loadBanners(); // Перезагружаем данные
       }
-    } catch (err) {
-      console.error('Error moving banner up:', err);
-      alert('Ошибка при изменении порядка баннера');
+    } catch (error) {
+      setError('Ошибка подключения к серверу');
     }
   };
 
   const handleMoveDown = async (bannerId: string) => {
     try {
-      const currentIndex = banners.findIndex(b => b.id === bannerId);
-      if (currentIndex < banners.length - 1) {
+      const index = banners.findIndex(b => b.id === bannerId);
+      if (index < banners.length - 1) {
         const newBanners = [...banners];
-        [newBanners[currentIndex], newBanners[currentIndex + 1]] = [newBanners[currentIndex + 1], newBanners[currentIndex]];
-        const bannerIds = newBanners.map(b => b.id);
-        await apiService.reorderBanners(bannerIds);
-        setBanners(newBanners.map((b, i) => ({ ...b, sortOrder: i + 1 })));
+        [newBanners[index], newBanners[index + 1]] = [newBanners[index + 1], newBanners[index]];
+        
+        // Обновляем порядок на сервере
+        for (let i = 0; i < newBanners.length; i++) {
+          const response = await fetch(`/api/banners/${newBanners[i].id}`, {
+            method: 'PUT',
+            headers: {
+              'x-admin-code': getAdminCode(),
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              isActive: newBanners[i].isActive,
+              sortOrder: i + 1,
+            }),
+          });
+          if (!response.ok) {
+            setError('Ошибка обновления порядка баннеров');
+            return;
+          }
+        }
+        
+        await loadBanners(); // Перезагружаем данные
       }
-    } catch (err) {
-      console.error('Error moving banner down:', err);
-      alert('Ошибка при изменении порядка баннера');
+    } catch (error) {
+      setError('Ошибка подключения к серверу');
     }
   };
 
+  // Сортируем баннеры по порядку
+  const sortedBanners = [...banners].sort((a, b) => a.sortOrder - b.sortOrder);
+
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Загрузка баннеров...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center py-16">
-        <p className="text-red-600 mb-4">{error}</p>
-        <Button onClick={loadBanners} className="bg-blue-600 hover:bg-blue-700">
-          Попробовать снова
-        </Button>
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2">Загрузка баннеров...</span>
       </div>
     );
   }
@@ -165,15 +260,22 @@ export function AdminPromoBanners() {
       {/* Заголовок и кнопки */}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Управление промо-баннерами</h2>
-        <Button onClick={handleAddNew} className="bg-blue-600 hover:bg-blue-700">
+        <Button onClick={handleAddNew} className="bg-green-600 hover:bg-green-700">
           <Plus className="h-4 w-4 mr-2" />
           Добавить баннер
         </Button>
       </div>
 
+      {/* Сообщение об ошибке */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+          {error}
+        </div>
+      )}
+
       {/* Форма добавления/редактирования */}
       {showForm && (
-        <Card className="border-blue-200">
+        <Card className="border-green-200">
           <CardContent className="p-6">
             <AdminBannerForm
               banner={editingBanner}
@@ -188,81 +290,108 @@ export function AdminPromoBanners() {
       )}
 
       {/* Список баннеров */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {banners.map((banner, index) => (
+      <div className="space-y-4" data-banners-count={sortedBanners.length}>
+        {sortedBanners.map((banner, index) => (
           <Card key={banner.id} className="overflow-hidden">
-            <div className="relative">
-              <img
-                src={banner.image}
-                alt={`Баннер ${index + 1}`}
-                className="w-full h-48 object-cover"
-                onError={(e) => {
-                  e.currentTarget.src = '/loading.png';
-                }}
-              />
-              <div className="absolute top-2 right-2">
-                <Badge variant={banner.isActive ? 'default' : 'secondary'}>
-                  {banner.isActive ? 'Активен' : 'Неактивен'}
-                </Badge>
+            <div className="flex flex-col md:flex-row">
+              {/* Изображение */}
+              <div className="relative w-full md:w-64 h-48 md:h-auto">
+                <img
+                  src={banner.image}
+                  alt="Промо баннер"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = '/loading.png';
+                  }}
+                />
+                <div className="absolute top-2 left-2">
+                  {banner.isActive ? (
+                    <Badge className="bg-green-500">Активен</Badge>
+                  ) : (
+                    <Badge className="bg-gray-500">Неактивен</Badge>
+                  )}
+                </div>
+                <div className="absolute top-2 right-2">
+                  <Badge className="bg-blue-500">#{banner.sortOrder}</Badge>
+                </div>
               </div>
-            </div>
-            <CardContent className="p-4">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-gray-500">
-                  Порядок: {banner.sortOrder}
-                </span>
-                <div className="flex gap-2">
+
+              {/* Контент */}
+              <div className="flex-1 p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="font-semibold text-lg">Баннер #{banner.sortOrder}</h3>
+                </div>
+                <p className="text-sm text-gray-500 mb-3">
+                  Размер: 1200x400px (рекомендуется)
+                </p>
+
+                {/* Кнопки управления */}
+                <div className="flex flex-wrap gap-2">
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => handleToggleActive(banner.id)}
                   >
-                    {banner.isActive ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {banner.isActive ? (
+                      <>
+                        <EyeOff className="h-4 w-4 mr-1" />
+                        Деактивировать
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="h-4 w-4 mr-1" />
+                        Активировать
+                      </>
+                    )}
                   </Button>
+
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => handleEdit(banner)}
                   >
-                    <Edit className="h-4 w-4" />
+                    <Edit className="h-4 w-4 mr-1" />
+                    Редактировать
                   </Button>
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleMoveUp(banner.id)}
+                    disabled={index === 0}
+                  >
+                    ↑ Вверх
+                  </Button>
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleMoveDown(banner.id)}
+                    disabled={index === sortedBanners.length - 1}
+                  >
+                    ↓ Вниз
+                  </Button>
+
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => handleDelete(banner.id)}
                     className="text-red-600 hover:text-red-700"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Удалить
                   </Button>
                 </div>
               </div>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleMoveUp(banner.id)}
-                  disabled={index === 0}
-                >
-                  ↑
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleMoveDown(banner.id)}
-                  disabled={index === banners.length - 1}
-                >
-                  ↓
-                </Button>
-              </div>
-            </CardContent>
+            </div>
           </Card>
         ))}
       </div>
 
-      {banners.length === 0 && (
+      {sortedBanners.length === 0 && (
         <div className="text-center py-12">
           <p className="text-gray-500 text-lg">
-            Пока нет баннеров
+            Промо-баннеры не добавлены
           </p>
         </div>
       )}
@@ -284,6 +413,12 @@ function AdminBannerForm({ banner, onSave, onCancel }: AdminBannerFormProps) {
     isActive: true,
     sortOrder: 1
   });
+
+  // Получаем количество баннеров для определения sortOrder
+  const getBannersCount = () => {
+    const bannersElement = document.querySelector('[data-banners-count]');
+    return bannersElement ? parseInt(bannersElement.getAttribute('data-banners-count') || '0') : 0;
+  };
 
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
@@ -310,10 +445,10 @@ function AdminBannerForm({ banner, onSave, onCancel }: AdminBannerFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (imagePreview) {
-      // В реальном приложении здесь была бы загрузка файла на сервер
       const finalBanner = {
         ...formData,
-        image: imagePreview
+        image: imagePreview,
+        sortOrder: banner ? banner.sortOrder : getBannersCount() + 1
       };
       onSave(finalBanner);
     }

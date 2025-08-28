@@ -58,7 +58,7 @@ export function PromoBanners() {
           <a
             key={banner.id}
             href={banner.link}
-            className="block w-full relative aspect-[4/1] rounded-lg overflow-hidden"
+            className="block w-full relative h-56 md:h-72 lg:h-96 xl:h-[28rem] rounded-xl overflow-hidden"
           >
             <ImageWithFallback
               src={banner.image}

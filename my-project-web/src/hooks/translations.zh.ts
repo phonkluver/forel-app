@@ -19,7 +19,7 @@ export const zhTranslations = {
   reservationLabel: '预订',
   email: 'info@forelrest.com',
   businessHours: '营业时间',
-  workingHours: '每日 08:00 - 23:00',
+  workingHours: '每日 09:00 - 23:00',
   khujand: '苦盏市锡尔河街b/n',
   
   // Home Page
@@ -123,7 +123,7 @@ export const zhTranslations = {
   needHelp: '需要预订帮助？',
   needHelpDesc: '我们的管理员随时准备帮助您选择餐桌',
   callUs: '致电我们',
-  dailyHours: '每日 08:00 至 23:00',
+  dailyHours: '每日 09:00 至 23:00',
   onlineBooking: '在线预订',
   available247: '24/7 可用',
   instantConfirmation: '即时确认',
@@ -131,7 +131,7 @@ export const zhTranslations = {
   needHelpWithBooking: '需要预订帮助？',
   needHelpWithBookingDesc: '我们的管理员随时准备帮助您选择餐桌',
   callUsForBooking: '致电我们',
-  dailyHoursBooking: '每日 08:00 至 23:00',
+  dailyHoursBooking: '每日 09:00 至 23:00',
   onlineBookingAvailable: '在线预订',
   available247Booking: '24/7 可用',
   instantConfirmationBooking: '即时确认',

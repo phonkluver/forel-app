@@ -1,8 +1,9 @@
 // Сервис для отправки уведомлений в Telegram
+import { API_CONFIG } from '../config/api';
 
-const BOT_TOKEN = '8448547384:AAEiORI0JIrXoo6LYubHDdEHTeH3fTXCdVs';
-const ADMIN_CHAT_ID = '7347563606';
-const TELEGRAM_API_URL = `https://api.telegram.org/bot${BOT_TOKEN}`;
+const BOT_TOKEN = API_CONFIG.TELEGRAM.BOT_TOKEN;
+const ADMIN_CHAT_ID = API_CONFIG.TELEGRAM.ADMIN_CHAT_ID;
+const TELEGRAM_API_URL = API_CONFIG.TELEGRAM.API_URL;
 
 
 

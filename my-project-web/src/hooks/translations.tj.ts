@@ -19,7 +19,7 @@ export const tjTranslations = {
   reservationLabel: 'Бронкунӣ',
   email: 'info@forelrest.com',
   businessHours: 'Вақти кор',
-  workingHours: 'Ҳар рӯз аз 08:00 то 23:00',
+  workingHours: 'Ҳар рӯз аз 09:00 то 23:00',
   khujand: 'ш. Хуҷанд, кӯчаи Сирдарё б/н',
   
   // Home Page
@@ -123,7 +123,7 @@ export const tjTranslations = {
   needHelp: 'Барои ҷойгиркунӣ кӯмак лозим аст?',
   needHelpDesc: 'Маъмурони мо ҳамеша омодаанд барои кӯмак кардан дар интихоби миз',
   callUs: 'Мо ба занг занед',
-  dailyHours: 'Ҳар рӯз аз 08:00 то 23:00',
+  dailyHours: 'Ҳар рӯз аз 09:00 то 23:00',
   onlineBooking: 'Ҷойгиркунии онлайн',
   available247: '24/7 дастрас',
   instantConfirmation: 'Тасдиқи фаври',
@@ -131,7 +131,7 @@ export const tjTranslations = {
   needHelpWithBooking: 'Барои ҷойгиркунӣ кӯмак лозим аст?',
   needHelpWithBookingDesc: 'Маъмурони мо ҳамеша омодаанд барои кӯмак кардан дар интихоби миз',
   callUsForBooking: 'Ба мо занг занед',
-  dailyHoursBooking: 'Ҳар рӯз аз 08:00 то 23:00',
+  dailyHoursBooking: 'Ҳар рӯз аз 09:00 то 23:00',
   onlineBookingAvailable: 'Ҷойгиркунии онлайн',
   available247Booking: '24/7 дастрас',
   instantConfirmationBooking: 'Тасдиқи фаври',

@@ -56,14 +56,14 @@ export function WeddingHallPage() {
 
   const services = [
     {
-      icon: <ChefHat className="h-8 w-8" />,
-      title: translations.exclusiveMenu,
-      description: translations.exclusiveMenuDesc
-    },
-    {
       icon: <Key className="h-8 w-8" />,
       title: translations.keyEntertainment,
       description: translations.keyEntertainmentDesc
+    },
+    {
+      icon: <ChefHat className="h-8 w-8" />,
+      title: translations.exclusiveMenu,
+      description: translations.exclusiveMenuDesc
     },
     {
       icon: <Wine className="h-8 w-8" />,
@@ -280,6 +280,10 @@ export function WeddingHallPage() {
       {isVideoOpen && (
   <div className="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center px-4">
     <div className="relative w-full max-w-4xl aspect-video bg-black rounded-xl overflow-hidden shadow-2xl">
+      <div className="absolute top-4 left-4 z-50 text-white">
+        <h3 className="text-lg font-semibold">{translations.videoTour}</h3>
+        <p className="text-sm text-gray-300">{translations.videoTourDesc}</p>
+      </div>
       <button
         className="absolute top-4 right-4 z-50 text-white bg-black bg-opacity-60 p-2 rounded-full hover:bg-opacity-80"
         onClick={() => setIsVideoOpen(false)}
@@ -291,7 +295,7 @@ export function WeddingHallPage() {
         </svg>
       </button>
       <video controls autoPlay className="w-full h-full object-cover">
-        <source src="wedding/wedding.mp4" type="video/mp4" />
+        <source src="wedding/wedding.MP4" type="video/mp4" />
         Ваш браузер не поддерживает воспроизведение видео.
       </video>
     </div>
@@ -470,27 +474,28 @@ export function WeddingHallPage() {
 
       {/* Instagram Section */}
 
-  <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center bg-pink-50 rounded-3xl py-12">
-  <AnimatedBlock delay={200} direction="up" duration={1000}>
-    <Badge className="mb-4 bg-pink-500 text-white px-4 py-2">
-      📷 Instagram
-    </Badge>
-    <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-      {translations.instagramTitle}
-    </h2>
-    <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
-      {translations.instagramDesc}
-    </p>
-    <a
-      href="https://www.instagram.com/wedding_hall_forel/?igsh=ZzMza28xc2hmeW8w"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-block font-bold golden-gradient text-black text-lg px-8 py-4 rounded-full hover:scale-105 transition-transform duration-300"
-    >
-      {translations.instagramButton}
-    </a>
-  </AnimatedBlock>
-</div>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-12 sm:py-16 lg:py-20">
+    <AnimatedBlock delay={200} direction="up" duration={1000}>
+      <Badge className="mb-4 golden-gradient text-white px-4 py-2 text-black">
+        🍽️ Instagram
+      </Badge>
+      <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+  {translations.instagramRestaurantTitle}
+</h2>
+<p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
+{translations.instagramDesc}
+</p>
+<a
+  href="https://www.instagram.com/wedding_hall_forel/?igsh=ZzMza28xc2hmeW8w "
+  target="_blank"
+  rel="noopener noreferrer"
+  className="inline-block golden-gradient text-black text-lg px-8 py-4 rounded-full shadow-lg hover:scale-105 transition-transform duration-300"
+>
+  {translations.instagramRestaurantButton}
+</a>
+    </AnimatedBlock>
+  </div>
+
 
 
     </div>

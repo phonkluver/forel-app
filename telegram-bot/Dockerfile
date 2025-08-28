@@ -12,9 +12,9 @@ RUN npm install --only=production
 # Копируем исходный код
 COPY . .
 
-# Устанавливаем права доступа
-RUN chown -R node:node /app
-USER node
+# Открываем порт (если нужно)
+EXPOSE 3000
 
 # Запускаем бота
-CMD ["node", "bot.js"]
+CMD ["npm", "start"]
+
