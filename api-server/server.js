@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors({
-  origin: ['http://127.0.0.1', 'http://localhost:8080', 'http://localhost:5173', 'http://localhost:5174', 'http://forelrest.com', 'http://www.forelrest.com', 'http://telegram.forelrest.com'],
+  origin: ['http://127.0.0.1', 'http://localhost:8080', 'http://localhost:5173', 'http://localhost:5174', 'http://forelrest.com', 'http://www.forelrest.com', 'http://telegram.forelrest.com', 'https://forelrest.com', 'https://www.forelrest.com', 'https://telegram.forelrest.com'],
   credentials: true
 }));
 app.use(express.json());

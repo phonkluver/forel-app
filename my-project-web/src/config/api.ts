@@ -2,7 +2,7 @@
 export const API_CONFIG = {
   // Базовый URL API
   BASE_URL: process.env.NODE_ENV === 'production' 
-    ? 'https://your-domain.com' 
+    ? 'https://forelrest.com' 
     : 'http://localhost:3001',
   
   // Telegram Bot конфигурация
