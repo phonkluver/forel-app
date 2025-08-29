@@ -84,15 +84,13 @@ export function AdminCategoriesManager() {
 
   const handleSaveCategory = async (category: Category) => {
     try {
-      const formData = new FormData();
-      formData.append('name', category.name);
-      
-      if (category.categoryImage && !category.categoryImage.startsWith('/categories/')) {
-        // Если это новый файл, добавляем его в FormData
-        const response = await fetch(category.categoryImage);
-        const blob = await response.blob();
-        formData.append('image', blob, 'category-image.jpg');
-      }
+      // Создаем объект с переводами на всех языках
+      const nameObject = {
+        ru: category.name,
+        en: category.name,
+        cn: category.name,
+        tj: category.name
+      };
 
       const url = editingCategory 
         ? `/api/categories/${editingCategory.id}`
@@ -100,12 +98,16 @@ export function AdminCategoriesManager() {
       
       const method = editingCategory ? 'PUT' : 'POST';
 
+      // Отправляем JSON данные
       const response = await fetch(url, {
         method,
         headers: {
           'x-admin-code': adminCode || '',
+          'Content-Type': 'application/json',
         },
-        body: formData,
+        body: JSON.stringify({
+          name: nameObject
+        }),
       });
 
       if (response.ok) {

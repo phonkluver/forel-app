@@ -24,12 +24,11 @@ import { Badge } from './ui/badge';
 import { useLanguage } from '../hooks/useLanguage';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { AnimatedBlock } from './AnimatedBlock';
+import { Page } from '../config/navigation';
 
 interface HomePageProps {
-  onNavigate: (page: string) => void;
+  onNavigate: (page: Page) => void;
 }
-
-
 
 export function HomePage({ onNavigate }: HomePageProps) {
   const { language, translations } = useLanguage();
@@ -158,7 +157,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
       case 'en':
         return 'Every detail of our restaurant is created to give you an unforgettable experience';
       case 'tj':
-        return '?�� �� ?������ ��������� �� ����� ��?����� �����?���������� ������� �������';
+        return '? ?  ? ?';
       case 'zh':
         return '????????????????????';
       default:
@@ -171,7 +170,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
       case 'en':
         return 'Visit Us Today';
       case 'tj':
-        return '���?� �� �� ?�� ��?� �����';
+        return '? ?? ';
       case 'zh':
         return '????????';
       default:
@@ -184,7 +183,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
       case 'en':
         return 'Discover an unforgettable culinary experience in the heart of Khujand';
       case 'tj':
-        return '��?����� ������� �����?������������ ��� ?���� ��?��� ���� �����';
+        return '? ?  ?? ';
       case 'zh':
         return '??????????????';
       default:
@@ -210,13 +209,13 @@ export function HomePage({ onNavigate }: HomePageProps) {
                 alt={`Restaurant ambiance ${index + 1}`}
                 className="w-full h-full object-cover transform scale-105 motion-safe:animate-ken-burns"
               />
-              {/* ����������� ������� */}
+              {/* Дополнительные градиенты */}
               <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/70" />
-              {/* ������ �������� */}
+              {/* Радиальный градиент */}
               <div className="absolute inset-0 bg-radial-gradient" style={{
                 background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.4) 100%)'
               }} />
-              {/* ����� */}
+              {/* Свечение */}
               <div className="absolute inset-0">
                 <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 via-transparent to-amber-500/10" />
                 <div className="absolute inset-0 bg-gradient-to-bl from-amber-500/5 via-transparent to-amber-500/5" />
@@ -225,11 +224,11 @@ export function HomePage({ onNavigate }: HomePageProps) {
           ))}
         </div>
         
-        {/* ������������ �������� */}
+        {/* Дополнительные градиенты */}
         <div className="absolute inset-0">
-          {/* ������� �������� */}
+          {/* Верхний градиент */}
           <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/50 to-transparent" />
-          {/* ������ �������� */}
+          {/* Нижний градиент */}
           <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/50 to-transparent" />
         </div>
 
@@ -240,7 +239,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
   }`}
 >
   <div className="max-w-5xl mx-auto">
-    {/* ��������� � ������������ */}
+    {/* Заголовок и подзаголовок */}
     <div className="flex flex-col items-center text-center mb-8 px-2">
       <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight tracking-tight text-white drop-shadow-2xl">
         {translations.restaurantForel}
@@ -250,7 +249,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
       </p>
     </div>
 
-    {/* ������ */}
+    {/* Кнопки */}
     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center px-2">
       <Button
         onClick={() => onNavigate('menu')}
@@ -274,8 +273,6 @@ export function HomePage({ onNavigate }: HomePageProps) {
     </div>
   </div>
 </div>
-
-
 
         {/* Scroll Indicator */}
         <div className="absolute bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 text-white animate-bounce">
@@ -365,7 +362,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
 
         </div>
       </section>
-      {/* Instagram Section � Restaurant */}
+      {/* Instagram Section - Restaurant */}
   <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-12 sm:py-16 lg:py-20">
     <AnimatedBlock delay={200} direction="up" duration={1000}>
       <Badge className="mb-4 golden-gradient text-white px-4 py-2 text-black">

@@ -51,7 +51,10 @@ export function MenuComponent({ addToCart, cart, updateQuantity }: MenuComponent
   const { language } = useLanguage();
   const [menuData, setMenuData] = useState<MenuCategory[]>([]);
   const [banners, setBanners] = useState<Banner[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>(() => {
+    // Восстанавливаем выбранную категорию из localStorage при загрузке
+    return localStorage.getItem('selectedCategory') || '';
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPromoIndex, setCurrentPromoIndex] = useState(0);
@@ -154,15 +157,18 @@ export function MenuComponent({ addToCart, cart, updateQuantity }: MenuComponent
           .flatMap(cat => cat.items)
           .find(item => item.id === itemId);
         
-        if (item && item.images && item.images.length > 1) {
-          intervals[itemId] = setInterval(() => {
-            setCarouselStates(prev => {
-              const currentIndex = prev[itemId] || 0;
-              const newIndex = (currentIndex + 1) % item.images.length;
-              return { ...prev, [itemId]: newIndex };
-            });
-          }, 2000);
-        }
+                                   const categoryId = item.category;
+                  if (item && item.images && item.images.length > 1 && 
+              categoryId !== 'c5541272-f136-4b9a-bcfc-556ea7fd45c9' && 
+              categoryId !== '5f3d7b36-cf30-4727-a868-961a14e03a27') {
+           intervals[itemId] = setInterval(() => {
+             setCarouselStates(prev => {
+               const currentIndex = prev[itemId] || 0;
+               const newIndex = (currentIndex + 1) % item.images.length;
+               return { ...prev, [itemId]: newIndex };
+             });
+           }, 2000);
+         }
       }
     });
 
@@ -197,14 +203,42 @@ export function MenuComponent({ addToCart, cart, updateQuantity }: MenuComponent
 
   // Получение локализованного названия блюда
   const getLocalizedName = (item: MenuItem) => {
-    return item.name[language as keyof typeof item.name] || item.name.ru;
+    if (!item || !item.name) {
+      return 'Без названия';
+    }
+    
+    // Проверяем, является ли name строкой (JSON) и парсим её
+    let nameObj = item.name;
+    if (typeof item.name === 'string') {
+      try {
+        nameObj = JSON.parse(item.name);
+      } catch (e) {
+        return item.name; // Возвращаем строку как есть
+      }
+    }
+    
+    return nameObj[language as keyof typeof nameObj] || nameObj.ru || 'Без названия';
   };
 
 
 
   // Получение локализованного названия категории
   const getLocalizedCategoryName = (category: MenuCategory) => {
-    return category.name[language as keyof typeof category.name] || category.name.ru;
+    if (!category || !category.name) {
+      return 'Без названия';
+    }
+    
+    // Проверяем, является ли name строкой (JSON) и парсим её
+    let nameObj = category.name;
+    if (typeof category.name === 'string') {
+      try {
+        nameObj = JSON.parse(category.name);
+      } catch (e) {
+        return category.name; // Возвращаем строку как есть
+      }
+    }
+    
+    return nameObj[language as keyof typeof nameObj] || nameObj.ru || 'Без названия';
   };
 
   const getCartItemQuantity = (id: string) => {
@@ -343,146 +377,215 @@ export function MenuComponent({ addToCart, cart, updateQuantity }: MenuComponent
             </h2>
             
             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {category.items.map((item) => {
-          const currentImageIndex = carouselStates[item.id] || 0;
-                const hasMultipleImages = item.images && item.images.length > 1;
-                const hasImages = item.images && item.images.length > 0;
-                const isGarnishCategory = category.id === "5f3d7b36-cf30-4727-a868-961a14e03a27";
+                                                           {category.items.map((item) => {
+            const currentImageIndex = carouselStates[item.id] || 0;
+                  const hasMultipleImages = item.images && item.images.length > 1;
+                  // Для супов и гарниров всегда показываем заглушку
+                  // Для супов и гарниров не показываем изображения вообще
+                  const categoryId = item.category;
+                  const isSoupOrGarnish = categoryId === 'c5541272-f136-4b9a-bcfc-556ea7fd45c9' || categoryId === '5f3d7b36-cf30-4727-a868-961a14e03a27';
+                  const hasImages = (item.images && item.images.length > 0) && !isSoupOrGarnish;
           
           return (
-                  <Card key={item.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 rounded-xl border-0 shadow-lg">
-                    <div
-                      className="relative group"
-                      onMouseEnter={() => setHoveredItems(prev => ({ ...prev, [item.id]: true }))}
-                      onMouseLeave={() => setHoveredItems(prev => ({ ...prev, [item.id]: false }))}
-                    >
-                      {/* Image area with cross-fade - скрываем для гарниров */}
-                      {!isGarnishCategory && (
-                        <AspectRatio ratio={6/4}>
-                          <div className="relative w-full h-full">
-                            {hasImages ? (
-                              item.images.map((relSrc, idx) => (
-                                <ImageWithFallback
-                                  key={`${item.id}-${idx}`}
-                                  src={`${API_BASE}${relSrc}`}
-                                  alt={getLocalizedName(item)}
-                                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${idx === currentImageIndex ? 'opacity-100' : 'opacity-0'}`}
-                                />
-                              ))
-                            ) : (
-                              <ImageWithFallback
-                                src={`${API_BASE}/images/default-dish.jpg`}
-                                alt={getLocalizedName(item)}
-                                className="absolute inset-0 w-full h-full object-cover"
-                              />
-                            )}
-                          </div>
-                        </AspectRatio>
-                      )}
+                                     <Card key={item.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 rounded-xl border-0 shadow-lg">
+                     {/* Для супов и гарниров показываем только контент без изображений */}
 
-                      {/* Multiple images indicator - скрываем для гарниров */}
-                      {!isGarnishCategory && hasMultipleImages && (
-                        <div className="absolute top-2 right-2">
-                          <div className="bg-black/50 text-white text-xs px-2 py-1 rounded-full">
-                            {(currentImageIndex + 1)}/{item.images.length}
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Manual arrows - скрываем для гарниров */}
-                      {!isGarnishCategory && hasMultipleImages && (
-                        <>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setCarouselStates(prev => ({
-                                ...prev,
-                                [item.id]: (currentImageIndex - 1 + item.images.length) % item.images.length,
-                              }));
-                            }}
-                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <ChevronLeft className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setCarouselStates(prev => ({
-                                ...prev,
-                                [item.id]: (currentImageIndex + 1) % item.images.length,
-                              }));
-                            }}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <ChevronRight className="h-4 w-4" />
-                          </button>
+                     {isSoupOrGarnish ? (
+                       <CardContent className="p-6">
+                         <div className="flex justify-between items-start mb-3">
+                           <h3 className="font-bold text-xl sm:text-xl lg:text-2xl text-gray-900 line-clamp-2 pr-2">
+                             {getLocalizedName(item)}
+                           </h3>
+                           <span className="text-xl sm:text-2xl lg:text-2xl font-bold text-amber-600 whitespace-nowrap">
+                             {item.price} TJS
+                           </span>
+                         </div>
+
+                         {/* CTA / Quantity */}
+                         {(() => {
+                           const qty = getCartItemQuantity(item.id);
+                           if (qty === 0) {
+                             return (
+                               <Button
+                                 onClick={() => addToCart(item)}
+                                 className="w-full h-12 sm:h-14 font-semibold text-base sm:text-lg golden-gradient text-white hover:golden-gradient-hover"
+                               >
+                                 В корзину
+                               </Button>
+                             );
+                           }
+                           return (
+                             <div className="flex items-center justify-between">
+                               <div className="flex items-center space-x-3">
+                                 <Button
+                                   size="sm"
+                                   variant="outline"
+                                   onClick={() => updateQuantity(item.id, Math.max(0, qty - 1))}
+                                   className="h-10 w-10 sm:h-12 sm:w-12 p-0 border-amber-200"
+                                 >
+                                   <Minus className="h-4 w-4 sm:h-5 sm:w-5" />
+                                 </Button>
+                                 <span className="text-lg sm:text-xl lg:text-2xl font-bold min-w-[3rem] text-center">
+                                   {qty}
+                                 </span>
+                                 <Button
+                                   size="sm"
+                                   variant="outline"
+                                   onClick={() => updateQuantity(item.id, qty + 1)}
+                                   className="h-10 w-10 sm:h-12 sm:w-12 p-0 border-amber-200"
+                                 >
+                                   <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
+                                 </Button>
+                               </div>
+                               <Button
+                                 size="sm"
+                                 variant="outline"
+                                 onClick={() => updateQuantity(item.id, 0)}
+                                 className="h-10 sm:h-12 px-4 sm:px-6 text-sm sm:text-base border-red-200 text-red-600 hover:bg-red-50"
+                               >
+                                 Убрать
+                               </Button>
+                             </div>
+                           );
+                         })()}
+                       </CardContent>
+                     ) : (
+                       <>
+                         <div
+                           className="relative group"
+                           onMouseEnter={() => setHoveredItems(prev => ({ ...prev, [item.id]: true }))}
+                           onMouseLeave={() => setHoveredItems(prev => ({ ...prev, [item.id]: false }))}
+                         >
+                           {/* Image area with cross-fade - показываем изображение или заглушку */}
+                           <AspectRatio ratio={6/4}>
+                             <div className="relative w-full h-full">
+                               {hasImages ? (
+                                 item.images.map((relSrc, idx) => (
+                                   <ImageWithFallback
+                                     key={`${item.id}-${idx}`}
+                                     src={`${API_BASE}${relSrc}`}
+                                     alt={getLocalizedName(item)}
+                                     className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${idx === currentImageIndex ? 'opacity-100' : 'opacity-0'}`}
+                                   />
+                                 ))
+                               ) : (
+                                 <div className="absolute inset-0 w-full h-full bg-gray-100 flex items-center justify-center">
+                                   <div className="text-center">
+                                     <div className="w-16 h-16 mx-auto mb-2 text-gray-400">
+                                       <svg fill="currentColor" viewBox="0 0 24 24">
+                                         <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                                       </svg>
+                                     </div>
+                                     <p className="text-gray-500 text-sm">Нет фото</p>
+                                   </div>
+                                 </div>
+                               )}
+                             </div>
+                           </AspectRatio>
+
+                           {/* Multiple images indicator - показываем только если есть изображения */}
+                           {hasImages && hasMultipleImages && (
+                             <div className="absolute top-2 right-2">
+                               <div className="bg-black/50 text-white text-xs px-2 py-1 rounded-full">
+                                 {(currentImageIndex + 1)}/{item.images.length}
+                               </div>
+                             </div>
+                           )}
+                           
+                           {/* Manual arrows - показываем только если есть изображения */}
+                           {hasImages && hasMultipleImages && (
+                            <>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setCarouselStates(prev => ({
+                                    ...prev,
+                                    [item.id]: (currentImageIndex - 1 + item.images.length) % item.images.length,
+                                  }));
+                                }}
+                                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <ChevronLeft className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setCarouselStates(prev => ({
+                                    ...prev,
+                                    [item.id]: (currentImageIndex + 1) % item.images.length,
+                                  }));
+                                }}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <ChevronRight className="h-4 w-4" />
+                              </button>
+                            </>
+                          )}
+                         </div>
+
+                                                   <CardContent className="p-6">
+                            <div className="flex justify-between items-start mb-3">
+                              <h3 className="font-bold text-xl sm:text-xl lg:text-2xl text-gray-900 line-clamp-2 pr-2">
+                                {getLocalizedName(item)}
+                              </h3>
+                              <span className="text-xl sm:text-2xl lg:text-2xl font-bold text-amber-600 whitespace-nowrap">
+                                {item.price} TJS
+                              </span>
+                            </div>
+
+                            {/* CTA / Quantity */}
+                            {(() => {
+                              const qty = getCartItemQuantity(item.id);
+                              if (qty === 0) {
+                                return (
+                                  <Button
+                                    onClick={() => addToCart(item)}
+                                    className="w-full h-12 sm:h-14 font-semibold text-base sm:text-lg golden-gradient text-white hover:golden-gradient-hover"
+                                  >
+                                    В корзину
+                                  </Button>
+                                );
+                              }
+                              return (
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center space-x-3">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => updateQuantity(item.id, Math.max(0, qty - 1))}
+                                      className="h-10 w-10 sm:h-12 sm:w-12 p-0 border-amber-200"
+                                    >
+                                      <Minus className="h-4 w-4 sm:h-5 sm:w-5" />
+                                    </Button>
+                                    <span className="text-lg sm:text-xl lg:text-2xl font-bold min-w-[3rem] text-center">
+                                      {qty}
+                                    </span>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => updateQuantity(item.id, qty + 1)}
+                                      className="h-10 w-10 sm:h-12 sm:w-12 p-0 border-amber-200"
+                                    >
+                                      <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
+                                    </Button>
+                                  </div>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => updateQuantity(item.id, 0)}
+                                    className="h-10 sm:h-12 px-4 sm:px-6 text-sm sm:text-base border-red-200 text-red-600 hover:bg-red-50"
+                                  >
+                                    Убрать
+                                  </Button>
+                                </div>
+                              );
+                            })()}
+                          </CardContent>
                         </>
                       )}
-                    </div>
-
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-start mb-3">
-                        <h3 className="font-bold text-xl sm:text-xl lg:text-2xl text-gray-900 line-clamp-2 pr-2">
-                          {getLocalizedName(item)}
-                      </h3>
-                        <span className="text-xl sm:text-2xl lg:text-2xl font-bold text-amber-600 whitespace-nowrap">
-                      {item.price} TJS
-                      </span>
-                    </div>
-
-
-
-                      {/* CTA / Quantity */}
-                      {(() => {
-                        const qty = getCartItemQuantity(item.id);
-                        if (qty === 0) {
-                          return (
-                            <Button
-                              onClick={() => addToCart(item)}
-                              className="w-full h-12 sm:h-14 font-semibold text-base sm:text-lg golden-gradient text-white hover:golden-gradient-hover"
-                            >
-                              В корзину
-                            </Button>
-                          );
-                        }
-                        return (
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                          <Button
-                                size="sm"
-                            variant="outline"
-                                onClick={() => updateQuantity(item.id, Math.max(0, qty - 1))}
-                                className="h-10 w-10 sm:h-12 sm:w-12 p-0 border-amber-200"
-                          >
-                                <Minus className="h-4 w-4 sm:h-5 sm:w-5" />
-                          </Button>
-                              <span className="text-lg sm:text-xl lg:text-2xl font-bold min-w-[3rem] text-center">
-                                {qty}
-                          </span>
-                          <Button
-                                size="sm"
-                            variant="outline"
-                                onClick={() => updateQuantity(item.id, qty + 1)}
-                                className="h-10 w-10 sm:h-12 sm:w-12 p-0 border-amber-200"
-                          >
-                                <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
-                          </Button>
-                        </div>
-                        <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => updateQuantity(item.id, 0)}
-                              className="h-10 sm:h-12 px-4 sm:px-6 text-sm sm:text-base border-red-200 text-red-600 hover:bg-red-50"
-                            >
-                              Убрать
-                        </Button>
-                    </div>
-                        );
-                      })()}
-              </CardContent>
-            </Card>
-          );
-        })}
+                    </Card>
+                  );
+                })}
             </div>
             
             {category.items.length === 0 && (

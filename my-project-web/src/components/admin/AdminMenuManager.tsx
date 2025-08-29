@@ -7,7 +7,7 @@ import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Plus, Edit, Trash2, X, Eye, EyeOff } from 'lucide-react';
 
-// ���� ������
+// Типы данных
 interface MenuItem {
   id: string;
   name: {
@@ -38,7 +38,7 @@ export function AdminMenuManager() {
 
   const adminCode = localStorage.getItem('adminCode');
 
-  // �������� ������
+  // Загрузка данных
   useEffect(() => {
     loadData();
   }, []);
@@ -47,8 +47,8 @@ export function AdminMenuManager() {
     try {
       setIsLoading(true);
       const [menuResponse, categoriesResponse] = await Promise.all([
-        fetch('/api/api/menu'),
-        fetch('/api/api/categories')
+        fetch('/api/menu'),
+        fetch('/api/categories')
       ]);
 
       if (menuResponse.ok && categoriesResponse.ok) {
@@ -75,20 +75,20 @@ export function AdminMenuManager() {
         setMenuItems(normalizedItems);
         setCategories(normalizedCategories);
       } else {
-        setError('������ �������� ������');
+        setError('Ошибка загрузки данных');
       }
     } catch (error) {
-      setError('������ ����������� � �������');
+      setError('Ошибка подключения к серверу');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleDelete = async (itemId: string) => {
-    if (!confirm('�� �������, ��� ������ ������� ��� �����?')) return;
+    if (!confirm('Вы уверены, что хотите удалить это блюдо?')) return;
 
     try {
-      const response = await fetch(`/api/api/menu${itemId}`, {
+      const response = await fetch(`/api/menu/${itemId}`, {
         method: 'DELETE',
         headers: {
           'x-admin-code': adminCode || '',
@@ -99,10 +99,10 @@ export function AdminMenuManager() {
         await loadData();
       } else {
         const errorData = await response.json();
-        alert(`������: ${errorData.error}`);
+        alert(`Ошибка: ${errorData.error}`);
       }
     } catch {
-      alert('������ ��� �������� �����');
+      alert('Ошибка при удалении блюда');
     }
   };
 
@@ -129,8 +129,8 @@ export function AdminMenuManager() {
       });
 
       const url = editingItem 
-        ? `/api/api/menu${editingItem.id}`
-        : '/api/api/menu';
+        ? `/api/menu/${editingItem.id}`
+        : '/api/menu';
       const method = editingItem ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -147,10 +147,10 @@ export function AdminMenuManager() {
         setEditingItem(null);
       } else {
         const errorData = await response.json();
-        alert(`������: ${errorData.error}`);
+        alert(`Ошибка: ${errorData.error}`);
       }
     } catch {
-      alert('������ ��� ���������� �����');
+      alert('Ошибка при сохранении блюда');
     }
   };
 
@@ -159,7 +159,7 @@ export function AdminMenuManager() {
     if (!item) return;
 
     try {
-      const response = await fetch(`/api/api/menu${itemId}`, {
+      const response = await fetch(`/api/menu/${itemId}`, {
         method: 'PUT',
         headers: {
           'x-admin-code': adminCode || '',
@@ -172,17 +172,17 @@ export function AdminMenuManager() {
         await loadData();
       } else {
         const errorData = await response.json();
-        alert(`������: ${errorData.error}`);
+        alert(`Ошибка: ${errorData.error}`);
       }
     } catch {
-      alert('������ ��� ��������� �������');
+      alert('Ошибка при изменении статуса');
     }
   };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="text-lg">�������� ����...</div>
+        <div className="text-lg">Загрузка данных...</div>
       </div>
     );
   }
@@ -192,7 +192,7 @@ export function AdminMenuManager() {
       <div className="text-red-500 p-4 text-center">
         {error}
         <Button onClick={loadData} className="ml-4">
-          ����������� �����
+          Попробовать снова
         </Button>
       </div>
     );
@@ -201,14 +201,14 @@ export function AdminMenuManager() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">���������� ����</h2>
+        <h2 className="text-2xl font-bold">Управление меню</h2>
         <Button onClick={handleAddNew} className="flex items-center gap-2">
           <Plus className="w-4 h-4" />
-          �������� �����
+          Добавить блюдо
         </Button>
       </div>
 
-      {/* ������ ���� */}
+      {/* Список блюд */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         {menuItems.map((item) => (
           <Card key={item.id} className="relative">
@@ -222,7 +222,7 @@ export function AdminMenuManager() {
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                    <span className="text-gray-500">��� ����</span>
+                    <span className="text-gray-500">Нет фото</span>
                   </div>
                 )}
                 {item.images && item.images.length > 1 && (
@@ -249,7 +249,7 @@ export function AdminMenuManager() {
               
               <div className="flex items-center justify-between mb-3">
                 <span className="text-lg font-bold text-green-600">
-                  {item.price} ?
+                  {item.price} TJS
                 </span>
                 <Badge variant="outline">
                   {categories.find(c => c.id === item.category)?.name || item.category}
@@ -264,7 +264,7 @@ export function AdminMenuManager() {
                   className="flex-1"
                 >
                   <Edit className="w-4 h-4 mr-1" />
-                  �������������
+                  Редактировать
                 </Button>
                 <Button
                   variant="outline"
@@ -280,14 +280,14 @@ export function AdminMenuManager() {
         ))}
       </div>
 
-      {/* ����� ����������/�������������� */}
+      {/* Модальное окно добавления/редактирования */}
       {showForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <Card className="w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
             <CardContent className="p-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-semibold">
-                  {editingItem ? '������������� �����' : '����� �����'}
+                  {editingItem ? 'Редактировать блюдо' : 'Новое блюдо'}
                 </h3>
                 <Button
                   variant="ghost"
@@ -349,7 +349,7 @@ function MenuItemForm({ item, categories, onSave, onCancel }: MenuItemFormProps)
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.ru.trim() || price <= 0 || !category) {
-      alert('��������� ��� ������������ ����');
+      alert('Пожалуйста заполните обязательные поля');
       return;
     }
 
@@ -369,7 +369,7 @@ function MenuItemForm({ item, categories, onSave, onCancel }: MenuItemFormProps)
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="name-ru">�������� (RU) *</Label>
+          <Label htmlFor="name-ru">Название (RU) *</Label>
           <Input
             id="name-ru"
             value={name.ru}
@@ -378,7 +378,7 @@ function MenuItemForm({ item, categories, onSave, onCancel }: MenuItemFormProps)
           />
         </div>
         <div>
-          <Label htmlFor="name-en">�������� (EN)</Label>
+          <Label htmlFor="name-en">Название (EN)</Label>
           <Input
             id="name-en"
             value={name.en}
@@ -386,7 +386,7 @@ function MenuItemForm({ item, categories, onSave, onCancel }: MenuItemFormProps)
           />
         </div>
         <div>
-          <Label htmlFor="name-tj">�������� (TJ)</Label>
+          <Label htmlFor="name-tj">Название (TJ)</Label>
           <Input
             id="name-tj"
             value={name.tj}
@@ -394,7 +394,7 @@ function MenuItemForm({ item, categories, onSave, onCancel }: MenuItemFormProps)
           />
         </div>
         <div>
-          <Label htmlFor="name-cn">�������� (CN)</Label>
+          <Label htmlFor="name-cn">Название (CN)</Label>
           <Input
             id="name-cn"
             value={name.cn}
@@ -405,7 +405,7 @@ function MenuItemForm({ item, categories, onSave, onCancel }: MenuItemFormProps)
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <Label htmlFor="price">���� *</Label>
+          <Label htmlFor="price">Цена *</Label>
           <Input
             id="price"
             type="number"
@@ -417,10 +417,10 @@ function MenuItemForm({ item, categories, onSave, onCancel }: MenuItemFormProps)
           />
         </div>
         <div>
-          <Label htmlFor="category">��������� *</Label>
+          <Label htmlFor="category">Категория *</Label>
           <Select value={category} onValueChange={setCategory}>
             <SelectTrigger>
-              <SelectValue placeholder="�������� ���������" />
+              <SelectValue placeholder="Выберите категорию" />
             </SelectTrigger>
             <SelectContent>
               {categories.map((cat) => (
@@ -439,12 +439,12 @@ function MenuItemForm({ item, categories, onSave, onCancel }: MenuItemFormProps)
             onChange={(e) => setIsActive(e.target.checked)}
             className="rounded"
           />
-          <Label htmlFor="isActive">�������</Label>
+          <Label htmlFor="isActive">Активно</Label>
         </div>
       </div>
 
       <div>
-        <Label htmlFor="images">����������� (�� 5 ������)</Label>
+        <Label htmlFor="images">Изображения (до 5 файлов)</Label>
         <Input
           id="images"
           type="file"
@@ -480,10 +480,10 @@ function MenuItemForm({ item, categories, onSave, onCancel }: MenuItemFormProps)
 
       <div className="flex gap-3 pt-4">
         <Button type="submit" className="flex-1">
-          {item ? '���������' : '��������'}
+          {item ? 'Сохранить' : 'Добавить'}
         </Button>
         <Button type="button" variant="outline" onClick={onCancel}>
-          ������
+          Отмена
         </Button>
       </div>
     </form>

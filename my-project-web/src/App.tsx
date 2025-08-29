@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { HomePage } from './components/HomePage';
@@ -9,96 +10,140 @@ import { ReservationsPage } from './components/ReservationsPage';
 import { WeddingHallPage } from './components/WeddingHallPage';
 import { CartComponent } from './components/CartComponent';
 import { CheckoutComponent } from './components/CheckoutComponent';
-import { AdminPanel } from './components/AdminPanel';
 import { useLanguage } from './hooks/useLanguage';
 import { useCart } from './hooks/useCart';
 import { Page, createNavigationItems } from './config/navigation';
 import './App.css';
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<Page>('home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { translations } = useLanguage();
   const { cart, addToCart, updateQuantity, removeFromCart, clearCart, getCartItemsCount, getCartTotal, getDeliveryFee, getFinalTotal } = useCart();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const navigationItems = createNavigationItems(translations);
   const cartItemsCount = getCartItemsCount();
 
-  // Проверяем URL для админки
-  const isAdminPage = window.location.pathname === '/admin';
-
-  // Wrapper функция для типовой совместимости
-  const handleNavigate = (page: Page) => {
-    setCurrentPage(page);
-  };
-
-  const renderCurrentPage = () => {
-    switch (currentPage) {
-      case 'home':
-        return <HomePage onNavigate={handleNavigate} />;
-      case 'menu':
-        return (
-          <MenuComponent
-            addToCart={addToCart}
-            cart={cart}
-            updateQuantity={updateQuantity}
-          />
-        );
-      case 'about':
-        return <AboutPage />;
-      case 'contact':
-        return <ContactPage />;
-      case 'reservations':
-        return <ReservationsPage />;
-      case 'wedding':
-        return <WeddingHallPage />;
-      case 'cart':
-        return (
-          <CartComponent
-            cart={cart}
-            updateQuantity={updateQuantity}
-            removeFromCart={removeFromCart}
-            onCheckout={() => setCurrentPage('checkout')}
-            getCartTotal={getCartTotal}
-            getDeliveryFee={getDeliveryFee}
-            getFinalTotal={getFinalTotal}
-          />
-        );
-      case 'checkout':
-        return (
-          <CheckoutComponent
-            cart={cart}
-            clearCart={clearCart}
-            onBack={() => setCurrentPage('cart')}
-            getCartTotal={getCartTotal}
-            getDeliveryFee={getDeliveryFee}
-            getFinalTotal={getFinalTotal}
-          />
-        );
+  // Определяем текущую страницу на основе URL
+  const getCurrentPage = (): Page => {
+    const path = location.pathname;
+    switch (path) {
+      case '/':
+      case '/home':
+        return 'home';
+      case '/menu':
+        return 'menu';
+      case '/about':
+        return 'about';
+      case '/contact':
+        return 'contact';
+      case '/reservations':
+        return 'reservations';
+      case '/wedding':
+        return 'wedding';
+      case '/cart':
+        return 'cart';
+      case '/checkout':
+        return 'checkout';
       default:
-        return <HomePage onNavigate={handleNavigate} />;
+        return 'home';
     }
   };
 
-  // Если это админка, показываем только админ-панель
-  if (isAdminPage) {
-    return <AdminPanel />;
-  }
+  const currentPage = getCurrentPage();
+
+  // Функция для навигации
+  const handleNavigate = (page: Page) => {
+    switch (page) {
+      case 'home':
+        navigate('/');
+        break;
+      case 'menu':
+        navigate('/menu');
+        break;
+      case 'about':
+        navigate('/about');
+        break;
+      case 'contact':
+        navigate('/contact');
+        break;
+      case 'reservations':
+        navigate('/reservations');
+        break;
+      case 'wedding':
+        navigate('/wedding');
+        break;
+      case 'cart':
+        navigate('/cart');
+        break;
+      case 'checkout':
+        navigate('/checkout');
+        break;
+      default:
+        navigate('/');
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header
         currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
+        setCurrentPage={handleNavigate}
         cartItemsCount={cartItemsCount}
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
         navigationItems={navigationItems}
       />
       <main className="flex-grow">
-        {renderCurrentPage()}
+        <Routes>
+          <Route path="/" element={<HomePage onNavigate={handleNavigate} />} />
+          <Route path="/home" element={<HomePage onNavigate={handleNavigate} />} />
+          <Route 
+            path="/menu" 
+            element={
+              <MenuComponent
+                addToCart={addToCart}
+                cart={cart}
+                updateQuantity={updateQuantity}
+              />
+            } 
+          />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/reservations" element={<ReservationsPage />} />
+          <Route path="/wedding" element={<WeddingHallPage />} />
+          <Route 
+            path="/cart" 
+            element={
+              <CartComponent
+                cart={cart}
+                updateQuantity={updateQuantity}
+                removeFromCart={removeFromCart}
+                onCheckout={() => handleNavigate('checkout')}
+                getCartTotal={getCartTotal}
+                getDeliveryFee={getDeliveryFee}
+                getFinalTotal={getFinalTotal}
+              />
+            } 
+          />
+          <Route 
+            path="/checkout" 
+            element={
+              <CheckoutComponent
+                cart={cart}
+                clearCart={clearCart}
+                onBack={() => handleNavigate('cart')}
+                getCartTotal={getCartTotal}
+                getDeliveryFee={getDeliveryFee}
+                getFinalTotal={getFinalTotal}
+              />
+            } 
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
-      <Footer setCurrentPage={setCurrentPage} />
+      <Footer setCurrentPage={handleNavigate} />
     </div>
   );
 }

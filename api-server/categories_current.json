@@ -1,92 +1,182 @@
 [
   {
     "id": "07aa618a-b9c4-4168-baad-5d5b47dbd02f",
-    "name": "{\"cn\":\"牛排\",\"en\":\"Steaks\",\"ru\":\"Стейки\",\"tj\":\"Стейкҳо\"}",
-    "image_url": "categories/steaks.jpg"
-  },
-  {
-    "id": "12834d17-e4b0-420e-9c16-bcbcbd840824",
-    "name": "{\"cn\":\"意大利面\",\"en\":\"Pasta\",\"ru\":\"Паста\",\"tj\":\"Паста\"}",
-    "image_url": "categories/pasta.jpg"
-  },
-  {
-    "id": "201dec22-632e-40c6-b4aa-4e052052f3f4",
-    "name": "{\"cn\":\"饮料\",\"en\":\"Drinks\",\"ru\":\"Напитки\",\"tj\":\"Нӯшокиҳо\"}",
-    "image_url": "categories/drinks.jpg"
-  },
-  {
-    "id": "5f3d7b36-cf30-4727-a868-961a14e03a27",
-    "name": "{\"cn\":\"配菜\",\"en\":\"Side Dishes\",\"ru\":\"Гарниры\",\"tj\":\"Гарнирҳо\"}",
-    "image_url": "categories/garnish.jpg"
-  },
-  {
-    "id": "6b62e78c-e823-4173-8794-d04e1c74c645",
-    "name": "{\"cn\":\"肉饼\",\"en\":\"Cutlets\",\"ru\":\"Котлеты\",\"tj\":\"Котлетаҳо\"}",
-    "image_url": "categories/cutlets.jpg"
-  },
-  {
-    "id": "76e3e5e9-3dfe-4b46-8eca-17cb107d1159",
-    "name": "{\"cn\":\"烤肉串\",\"en\":\"Kebab\",\"ru\":\"Шашлыки\",\"tj\":\"Шашликҳо\"}",
-    "image_url": "categories/kebab.jpg"
-  },
-  {
-    "id": "88d0b446-2d62-4f03-b128-a3d23a781f66",
-    "name": "{\"cn\":\"鱼类\",\"en\":\"Fish Dishes\",\"ru\":\"Рыбные блюда\",\"tj\":\"Моҳӣ\"}",
-    "image_url": "categories/fish.jpg"
-  },
-  {
-    "id": "8d42a89c-6313-4a60-8ca5-095ac1f61e58",
-    "name": "{\"cn\":\"特色菜\",\"en\":\"Special Dishes\",\"ru\":\"Специальные блюда\",\"tj\":\"Хӯриши махсус\"}",
-    "image_url": "categories/special.jpg"
-  },
-  {
-    "id": "976abf66-ee2a-4d6a-bd53-c54af3c909ea",
-    "name": "{\"cn\":\"开胃菜\",\"en\":\"Appetizers\",\"ru\":\"Закуски\",\"tj\":\"Оғӯза\"}",
-    "image_url": "categories/appetizers.jpg"
-  },
-  {
-    "id": "c5541272-f136-4b9a-bcfc-556ea7fd45c9",
-    "name": "{\"cn\":\"汤\",\"en\":\"Soups\",\"ru\":\"Супы\",\"tj\":\"Шӯрбоҳо\"}",
-    "image_url": "categories/soups.jpg"
-  },
-  {
-    "id": "e85659f7-6c58-4c94-b03e-a253e198b2d4",
-    "name": "{\"cn\":\"肉类\",\"en\":\"Meat Dishes\",\"ru\":\"Мясные блюда\",\"tj\":\"Гӯштӣ\"}",
-    "image_url": "categories/meat.jpg"
-  },
-  {
-    "id": "faf959bb-2f9f-457a-b20c-bfeea6de7775",
-    "name": "{\"cn\":\"排骨\",\"en\":\"Ribs\",\"ru\":\"Ребра\",\"tj\":\"Кабобҳо\"}",
-    "image_url": "categories/ribs.jpg"
+    "name": {
+      "ru": "Стейки",
+      "en": "Steaks",
+      "tj": "Стейкҳо",
+      "zh": "牛排"
+    },
+    "image_url": "categoriessteaks.jpg"
   },
   {
     "id": "fe96aa32-d1ea-4781-b259-10d4defee7dc",
-    "name": "{\"cn\":\"沙拉\",\"en\":\"Salads\",\"ru\":\"Салаты\",\"tj\":\"Салатҳо\"}",
-    "image_url": "categories/salads.jpg"
+    "name": {
+      "ru": "Салаты",
+      "en": "Salads",
+      "tj": "Салатҳо",
+      "zh": "沙拉"
+    },
+    "image_url": "categoriessalads.jpg"
   },
   {
-    "id": "georgian-cuisine",
-    "name": "{\"cn\":\"格鲁吉亚菜\",\"en\":\"Georgian Cuisine\",\"ru\":\"Грузинская кухня\",\"tj\":\"Хӯриши гурҷӣ\"}",
-    "image_url": "categories/special.jpg"
+    "id": "76e3e5e9-3dfe-4b46-8eca-17cb107d1159",
+    "name": {
+      "ru": "Шашлыки",
+      "en": "Shashlik",
+      "tj": "Шашликҳо",
+      "zh": "烤串"
+    },
+    "image_url": "categorieskebab.jpg"
   },
   {
-    "id": "pizza",
-    "name": "{\"cn\":\"披萨\",\"en\":\"Pizza\",\"ru\":\"Пицца\",\"tj\":\"Пицца\"}",
-    "image_url": "categories/special.jpg"
+    "id": "88d0b446-2d62-4f03-b128-a3d23a781f66",
+    "name": {
+      "ru": "Рыбные блюда",
+      "en": "Fish Dishes",
+      "tj": "Махӣ",
+      "zh": "鱼类"
+    },
+    "image_url": "categoriesfish.jpg"
   },
   {
-    "id": "rolls",
-    "name": "{\"cn\":\"寿司卷\",\"en\":\"Rolls\",\"ru\":\"Роллы\",\"tj\":\"Роллҳо\"}",
-    "image_url": "categories/fish.jpg"
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": {
+      "ru": "Специальные блюда",
+      "en": "Special Dishes",
+      "tj": "Хӯриши махсус",
+      "zh": "特色菜"
+    },
+    "image_url": "categoriesspecial.jpg"
   },
   {
-    "id": "sushi-sets",
-    "name": "{\"cn\":\"寿司套餐\",\"en\":\"Sushi and Sets\",\"ru\":\"Суши и сеты\",\"tj\":\"Суши ва сетҳо\"}",
-    "image_url": "categories/fish.jpg"
+    "id": "b2c3d4e5-f6g7-8901-bcde-f23456789012",
+    "name": {
+      "ru": "Закуски",
+      "en": "Appetizers",
+      "tj": "Овқаи пешакӣ",
+      "zh": "开胃菜"
+    },
+    "image_url": "categoriesappetizers.jpg"
   },
   {
-    "id": "desserts",
-    "name": "{\"cn\":\"甜点\",\"en\":\"Desserts\",\"ru\":\"Десерты\",\"tj\":\"Ширинӣ\"}",
-    "image_url": "categories/appetizers.jpg"
+    "id": "c3d4e5f6-g7h8-9012-cdef-345678901234",
+    "name": {
+      "ru": "Супы",
+      "en": "Soups",
+      "tj": "Шӯрбо",
+      "zh": "汤"
+    },
+    "image_url": "categoriessoups.jpg"
+  },
+  {
+    "id": "d4e5f6g7-h8i9-0123-defg-456789012345",
+    "name": {
+      "ru": "Мясные блюда",
+      "en": "Meat Dishes",
+      "tj": "Гӯшт",
+      "zh": "肉类"
+    },
+    "image_url": "categoriesmeat.jpg"
+  },
+  {
+    "id": "e5f6g7h8-i9j0-1234-efgh-567890123456",
+    "name": {
+      "ru": "Ребра",
+      "en": "Ribs",
+      "tj": "Дунба",
+      "zh": "排骨"
+    },
+    "image_url": "categoriesribs.jpg"
+  },
+  {
+    "id": "f6g7h8i9-j0k1-2345-fghi-678901234567",
+    "name": {
+      "ru": "Грузинская кухня",
+      "en": "Georgian Cuisine",
+      "tj": "Хӯриши гурҷӣ",
+      "zh": "格鲁吉亚菜"
+    },
+    "image_url": "categoriesspecial.jpg"
+  },
+  {
+    "id": "g7h8i9j0-k1l2-3456-ghij-789012345678",
+    "name": {
+      "ru": "Пицца",
+      "en": "Pizza",
+      "tj": "Пицца",
+      "zh": "披萨"
+    },
+    "image_url": "categoriespasta.jpg"
+  },
+  {
+    "id": "h8i9j0k1-l2m3-4567-hijk-890123456789",
+    "name": {
+      "ru": "Роллы",
+      "en": "Rolls",
+      "tj": "Роллҳо",
+      "zh": "寿司卷"
+    },
+    "image_url": "categoriesspecial.jpg"
+  },
+  {
+    "id": "i9j0k1l2-m3n4-5678-ijkl-901234567890",
+    "name": {
+      "ru": "Суши и сеты",
+      "en": "Sushi and Sets",
+      "tj": "Суши ва сетҳо",
+      "zh": "寿司套餐"
+    },
+    "image_url": "categoriesspecial.jpg"
+  },
+  {
+    "id": "j0k1l2m3-n4o5-6789-jklm-012345678901",
+    "name": {
+      "ru": "Десерты",
+      "en": "Desserts",
+      "tj": "Ширинӣ",
+      "zh": "甜点"
+    },
+    "image_url": "categoriesspecial.jpg"
+  },
+  {
+    "id": "k1l2m3n4-o5p6-7890-klmn-123456789012",
+    "name": {
+      "ru": "Паста",
+      "en": "Pasta",
+      "tj": "Паста",
+      "zh": "意大利面"
+    },
+    "image_url": "categoriespasta.jpg"
+  },
+  {
+    "id": "l2m3n4o5-p6q7-8901-lmno-234567890123",
+    "name": {
+      "ru": "Напитки",
+      "en": "Drinks",
+      "tj": "Нӯшокиҳо",
+      "zh": "饮料"
+    },
+    "image_url": "categoriesdrinks.jpg"
+  },
+  {
+    "id": "m3n4o5p6-q7r8-9012-mnop-345678901234",
+    "name": {
+      "ru": "Гарниры",
+      "en": "Side Dishes",
+      "tj": "Гарнирҳо",
+      "zh": "配菜"
+    },
+    "image_url": "categoriesgarnish.jpg"
+  },
+  {
+    "id": "n4o5p6q7-r8s9-0123-nopq-456789012345",
+    "name": {
+      "ru": "Котлеты",
+      "en": "Cutlets",
+      "tj": "Котлетаҳо",
+      "zh": "肉饼"
+    },
+    "image_url": "categoriescutlets.jpg"
   }
 ]

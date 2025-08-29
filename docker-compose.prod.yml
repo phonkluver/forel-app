@@ -11,6 +11,10 @@ services:
       - "3001:3001"
     volumes:
       - ./api-server/public:/app/public
+      - ./api-server/uploads:/app/uploads
+      - ./api-server/categories_current.json:/app/categories_current.json
+      - ./api-server/dishes_current.json:/app/dishes_current.json
+      - ./api-server/banners_current.json:/app/banners_current.json
     environment:
       - PORT=3001
     restart: unless-stopped

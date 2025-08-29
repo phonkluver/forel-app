@@ -16,6 +16,7 @@ interface MenuItem {
   name: { ru: string; en: string; tj: string; zh: string };
   price: number;
   category: string;
+  category_id?: string; // Добавляем опциональное поле для совместимости
   image: string; // Основное изображение для совместимости с useCart
   images: string[]; // Дополнительные изображения
   isActive: boolean;
@@ -177,16 +178,42 @@ export function MenuComponent({ addToCart, cart, updateQuantity }: MenuComponent
     setIsDragging(false);
   };
 
-
-
   // Получение локализованного названия блюда
   const getLocalizedName = (item: MenuItem) => {
-    return item.name[language as keyof typeof item.name] || item.name.ru;
+    if (!item || !item.name) {
+      return 'Без названия';
+    }
+    
+    // Проверяем, является ли name строкой (JSON) и парсим её
+    let nameObj = item.name;
+    if (typeof item.name === 'string') {
+      try {
+        nameObj = JSON.parse(item.name);
+      } catch (e) {
+        return item.name; // Возвращаем строку как есть
+      }
+    }
+    
+    return nameObj[language as keyof typeof nameObj] || nameObj.ru || 'Без названия';
   };
 
   // Получение локализованного названия категории
   const getLocalizedCategoryName = (category: MenuCategory) => {
-    return category.name[language as keyof typeof category.name] || category.name.ru;
+    if (!category || !category.name) {
+      return 'Без названия';
+    }
+    
+    // Проверяем, является ли name строкой (JSON) и парсим её
+    let nameObj = category.name;
+    if (typeof category.name === 'string') {
+      try {
+        nameObj = JSON.parse(category.name);
+      } catch (e) {
+        return category.name; // Возвращаем строку как есть
+      }
+    }
+    
+    return nameObj[language as keyof typeof nameObj] || nameObj.ru || 'Без названия';
   };
 
   // Форматирование цены
@@ -392,8 +419,8 @@ export function MenuComponent({ addToCart, cart, updateQuantity }: MenuComponent
                   : 'border-gray-200 hover:border-amber-300'
                 }`}>
                 <ImageWithFallback
-                  src={`${API_BASE}${category.image}`}
-                  alt={category.name[language as keyof typeof category.name] || category.name.ru}
+                  src={category.image.startsWith('http') ? category.image : `${API_BASE}${category.image}`}
+                  alt={getLocalizedCategoryName(category)}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -403,7 +430,7 @@ export function MenuComponent({ addToCart, cart, updateQuantity }: MenuComponent
                   ? 'text-amber-600'
                   : 'text-gray-600'
                 }`}>
-                {category.name[language as keyof typeof category.name] || category.name.ru}
+                {getLocalizedCategoryName(category)}
               </span>
             </div>
           ))}
@@ -421,7 +448,7 @@ export function MenuComponent({ addToCart, cart, updateQuantity }: MenuComponent
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center">
               <span className="w-12 h-12 rounded-full overflow-hidden mr-4 ring-2 ring-amber-400">
                 <ImageWithFallback
-                  src={`${API_BASE}${category.image}`}
+                  src={category.image.startsWith('http') ? category.image : `${API_BASE}${category.image}`}
                   alt={getLocalizedCategoryName(category)}
                   className="w-full h-full object-cover"
                 />
@@ -435,16 +462,20 @@ export function MenuComponent({ addToCart, cart, updateQuantity }: MenuComponent
                   const cartQuantity = getCartItemQuantity(item.id);
                   const hasMultipleImages = item.images && item.images.length > 1;
                   const currentImage = currentImages[item.id] || item.images[0] || '/categories/default.jpg';
-                  const isGarnishCategory = category.id === "5f3d7b36-cf30-4727-a868-961a14e03a27";
 
                   return (
                     <Card
-                      key={item.id}
+                      key={`${category.id}-${item.id}`}
                       className="overflow-hidden hover:shadow-xl transition-all duration-300 rounded-xl border-0 shadow-lg animate-on-scroll"
                       style={{ animationDelay: `${Math.min(index * 0.05, 0.3)}s` }}
                     >
-                      {/* Image area - скрываем для гарниров */}
-                      {!isGarnishCategory && (
+                                             {/* Image area - скрываем если нет изображений или это супы/гарниры */}
+                       {(() => {
+                         const categoryId = item.category_id || item.category;
+                         return item.images && item.images.length > 0 && 
+                          categoryId !== 'c5541272-f136-4b9a-bcfc-556ea7fd45c9' && 
+                          categoryId !== 'faf959bb-2f9f-457a-b20c-bfeea6de7775';
+                       })() && (
                         <div
                           className="relative group"
                           onMouseEnter={() => hasMultipleImages && handleImageHover(item.id, item.images)}

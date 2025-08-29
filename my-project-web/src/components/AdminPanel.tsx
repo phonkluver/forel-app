@@ -52,9 +52,90 @@ export function AdminPanel() {
   });
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [selectedCategoryImage, setSelectedCategoryImage] = useState<File | null>(null);
+  const [imagesToRemove, setImagesToRemove] = useState<string[]>([]);
   const [showPositionForm, setShowPositionForm] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  // Функция для удаления отдельного изображения при редактировании
+  const handleRemoveImage = (imagePath: string) => {
+    setImagesToRemove(prev => [...prev, imagePath]);
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter(img => img !== imagePath)
+    }));
+  };
+
+  // Функция для отмены удаления изображения
+  const handleCancelRemoveImage = (imagePath: string) => {
+    setImagesToRemove(prev => prev.filter(img => img !== imagePath));
+    setFormData(prev => ({
+      ...prev,
+      images: [...prev.images, imagePath]
+    }));
+  };
+
+  // Функции для drag & drop
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    
+    const files = Array.from(e.dataTransfer.files).filter(file => 
+      file.type.startsWith('image/')
+    );
+    
+    if (files.length > 0) {
+      handleFileSelect(files as any);
+    }
+  };
   const [selectedCategoryForPosition, setSelectedCategoryForPosition] = useState<string | null>(null);
   const [newPosition, setNewPosition] = useState<number>(1);
+
+  // Функция для группировки блюд по категориям
+  const getGroupedMenuItems = () => {
+    const grouped: { [categoryId: string]: { category: MenuCategory; items: MenuItem[] } } = {};
+    const uncategorizedItems: MenuItem[] = [];
+    
+    menuItems.forEach(item => {
+      const category = categories.find(cat => cat.id === item.category);
+      if (category) {
+        if (!grouped[item.category]) {
+          grouped[item.category] = { category, items: [] };
+        }
+        grouped[item.category].items.push(item);
+      } else {
+        // Блюда без категории или с несуществующей категорией
+        uncategorizedItems.push(item);
+      }
+    });
+    
+    const result = Object.values(grouped).sort((a, b) => 
+      a.category.name.ru.localeCompare(b.category.name.ru)
+    );
+    
+    // Добавляем секцию для блюд без категории, если они есть
+    if (uncategorizedItems.length > 0) {
+      result.push({
+        category: {
+          id: 'uncategorized',
+          name: { ru: 'Без категории', en: 'Uncategorized', tj: 'Без категории', zh: '未分类' },
+          image: ''
+        },
+        items: uncategorizedItems
+      });
+    }
+    
+    return result;
+  };
 
   // Восстанавливаем авторизацию при загрузке
   useEffect(() => {
@@ -126,8 +207,14 @@ export function AdminPanel() {
         
         console.log('Загруженные категории:', categoriesData);
         
+        // Парсим JSON из поля name для категорий
+        const parsedCategories = categoriesData.map((category: any) => ({
+          ...category,
+          name: typeof category.name === 'string' ? JSON.parse(category.name) : category.name
+        }));
+        
         setMenuItems(menuData);
-        setCategories(categoriesData);
+        setCategories(parsedCategories);
       } else {
         setError('Ошибка загрузки данных');
       }
@@ -161,6 +248,8 @@ export function AdminPanel() {
       images: dish.images,
       isActive: dish.isActive
     });
+    setSelectedFiles(null);
+    setImagesToRemove([]);
     setShowAddForm(true);
   };
 
@@ -168,7 +257,7 @@ export function AdminPanel() {
     if (!confirm('Вы уверены, что хотите удалить это блюдо?')) return;
     
     try {
-      const response = await fetch(`${API_BASE}/api/menu${dishId}`, {
+      const response = await fetch(`${API_BASE}/api/menu/${dishId}`, {
         method: 'DELETE',
         headers: {
           'x-admin-code': '0202'
@@ -188,7 +277,7 @@ export function AdminPanel() {
   const handleSaveDish = async () => {
     try {
       const url = editingDish 
-        ? `${API_BASE}/api/menu${editingDish.id}`
+        ? `${API_BASE}/api/menu/${editingDish.id}`
         : `${API_BASE}/api/menu`;
       
       const method = editingDish ? 'PUT' : 'POST';
@@ -200,11 +289,44 @@ export function AdminPanel() {
       formDataToSend.append('category', formData.category);
       formDataToSend.append('isActive', 'true');
       
-      // Добавляем выбранные файлы
-      if (selectedFiles) {
-        Array.from(selectedFiles).forEach((file) => {
-          formDataToSend.append('images', file);
-        });
+      // При редактировании всегда сохраняем существующие изображения, если не выбраны новые файлы
+      if (editingDish) {
+        console.log('Редактирование блюда:', editingDish.id);
+        console.log('Существующие изображения:', formData.images);
+        console.log('Изображения для удаления:', imagesToRemove);
+        console.log('Выбранные файлы:', selectedFiles);
+        
+        if (selectedFiles && selectedFiles.length > 0) {
+          // Если выбраны новые файлы, заменяем все существующие
+          console.log('Отправляем новые файлы');
+          Array.from(selectedFiles).forEach((file) => {
+            formDataToSend.append('images', file);
+          });
+        } else {
+          // Если новых файлов нет, сохраняем существующие изображения, исключая удаленные
+          console.log('Сохраняем существующие изображения');
+          formData.images.forEach((imagePath) => {
+            if (!imagesToRemove.includes(imagePath)) {
+              console.log('Добавляем существующее изображение:', imagePath);
+              formDataToSend.append('existingImages', imagePath);
+            } else {
+              console.log('Пропускаем удаленное изображение:', imagePath);
+            }
+          });
+        }
+        
+        // Добавляем список изображений для удаления
+        if (imagesToRemove.length > 0) {
+          console.log('Отправляем список для удаления:', imagesToRemove);
+          formDataToSend.append('imagesToRemove', JSON.stringify(imagesToRemove));
+        }
+      } else {
+        // При создании нового блюда
+        if (selectedFiles) {
+          Array.from(selectedFiles).forEach((file) => {
+            formDataToSend.append('images', file);
+          });
+        }
       }
       
       const response = await fetch(url, {
@@ -220,6 +342,7 @@ export function AdminPanel() {
         setShowAddForm(false);
         setEditingDish(null);
         setSelectedFiles(null);
+        setImagesToRemove([]);
         setFormData({
           name: { ru: '', en: '', tj: '', zh: '' },
           price: 0,
@@ -240,6 +363,8 @@ export function AdminPanel() {
   const handleCancelEdit = () => {
     setShowAddForm(false);
     setEditingDish(null);
+    setSelectedFiles(null);
+    setImagesToRemove([]);
     setFormData({
       name: { ru: '', en: '', tj: '', zh: '' },
       price: 0,
@@ -299,21 +424,32 @@ export function AdminPanel() {
       
       const method = editingCategory ? 'PUT' : 'POST';
       
-      // Создаем FormData для отправки файлов
-      const formDataToSend = new FormData();
-      formDataToSend.append('name', JSON.stringify(categoryFormData.name));
+      // Создаем FormData для отправки данных
+      const formData = new FormData();
+      formData.append('name', JSON.stringify(categoryFormData.name));
       
       // Добавляем изображение если выбрано
       if (selectedCategoryImage) {
-        formDataToSend.append('image', selectedCategoryImage);
+        formData.append('image', selectedCategoryImage);
+        console.log('Adding image to form data:', selectedCategoryImage.name);
+      } else {
+        console.log('No new image selected');
       }
+      
+      console.log('Sending category data:', {
+        url,
+        method,
+        name: categoryFormData.name,
+        hasImage: !!selectedCategoryImage
+      });
       
       const response = await fetch(url, {
         method,
         headers: { 
           'x-admin-code': '0202'
+          // Не устанавливаем Content-Type для FormData - браузер сделает это автоматически
         },
-        body: formDataToSend
+        body: formData
       });
       
       if (response.ok) {
@@ -507,43 +643,88 @@ export function AdminPanel() {
               </Button>
             </div>
 
-            <div className="grid gap-4">
-              {menuItems.map((item) => (
-                <Card key={item.id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        {item.images[0] && (
-                          <img
-                            src={`${API_BASE}${item.images[0]}`}
-                            alt={item.name.ru}
-                            className="w-16 h-16 object-cover rounded"
-                          />
-                        )}
-                        <div>
-                          <h3 className="font-semibold">{item.name.ru}</h3>
-                          <p className="text-sm font-medium">{item.price} TJS</p>
+            <div className="space-y-8">
+              {getGroupedMenuItems().map(({ category, items }) => (
+                <div key={category.id} className="space-y-4">
+                  {/* Заголовок категории */}
+                  <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-amber-50 to-amber-100 rounded-lg border border-amber-200">
+                    <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-amber-400">
+                      {category.image ? (
+                        <img
+                          src={`${API_BASE}${category.image}`}
+                          alt={category.name.ru}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                          <span className="text-gray-500 text-xs">Нет фото</span>
                         </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleEditDish(item)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleDeleteDish(item.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      )}
                     </div>
-                  </CardContent>
-                </Card>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">{category.name.ru}</h3>
+                      <p className="text-sm text-gray-600">
+                        {items.length} {items.length === 1 ? 'блюдо' : items.length < 5 ? 'блюда' : 'блюд'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Список блюд в категории */}
+                  <div className="grid gap-4 pl-4">
+                    {items.map((item) => (
+                      <Card key={item.id} className="border-l-4 border-l-amber-400">
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                              {item.images[0] && (
+                                <img
+                                  src={`${API_BASE}${item.images[0]}`}
+                                  alt={item.name.ru}
+                                  className="w-16 h-16 object-cover rounded"
+                                />
+                              )}
+                              <div>
+                                <h4 className="font-semibold">{item.name.ru}</h4>
+                                <p className="text-sm text-gray-600">{item.name.en}</p>
+                                <p className="text-sm font-medium text-amber-600">{item.price} TJS</p>
+                                <div className="flex items-center space-x-2 mt-1">
+                                  <span className={`px-2 py-1 text-xs rounded-full ${
+                                    item.isActive 
+                                      ? 'bg-green-100 text-green-800' 
+                                      : 'bg-red-100 text-red-800'
+                                  }`}>
+                                    {item.isActive ? 'Активно' : 'Неактивно'}
+                                  </span>
+                                  {item.images.length > 0 && (
+                                    <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                                      {item.images.length} фото
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => handleEditDish(item)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => handleDeleteDish(item.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
 
@@ -640,7 +821,7 @@ export function AdminPanel() {
                           <SelectContent>
                             {categories.map((category) => (
                               <SelectItem key={category.id} value={category.id}>
-                                {category.name.ru}
+                                {category.name?.ru || 'Без названия'}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -669,10 +850,7 @@ export function AdminPanel() {
                                     variant="destructive"
                                     size="sm"
                                     className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
-                                    onClick={() => {
-                                      const newImages = formData.images.filter((_, i) => i !== index);
-                                      setFormData({ ...formData, images: newImages });
-                                    }}
+                                    onClick={() => handleRemoveImage(image)}
                                   >
                                     <X className="h-3 w-3" />
                                   </Button>
@@ -681,15 +859,55 @@ export function AdminPanel() {
                             </div>
                           </div>
                         )}
+
+                        {/* Removed Images (can be restored) */}
+                        {imagesToRemove.length > 0 && (
+                          <div>
+                            <p className="text-sm text-gray-600 mb-2">Удаленные изображения (можно восстановить):</p>
+                            <div className="flex flex-wrap gap-2">
+                              {imagesToRemove.map((image, index) => (
+                                <div key={index} className="relative opacity-50">
+                                  <img
+                                    src={`${API_BASE}${image}`}
+                                    alt={`Removed Image ${index + 1}`}
+                                    className="w-20 h-20 object-cover rounded border"
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 bg-green-500 text-white hover:bg-green-600"
+                                    onClick={() => handleCancelRemoveImage(image)}
+                                  >
+                                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                         
-                        {/* File Upload */}
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                        {/* File Upload with Drag & Drop */}
+                        <div 
+                          className={`border-2 border-dashed rounded-lg p-6 transition-all duration-200 ${
+                            isDragOver 
+                              ? 'border-amber-400 bg-amber-50' 
+                              : 'border-gray-300 hover:border-gray-400'
+                          }`}
+                          onDragOver={handleDragOver}
+                          onDragLeave={handleDragLeave}
+                          onDrop={handleDrop}
+                        >
                           <div className="text-center">
-                            <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                            <Upload className={`mx-auto h-12 w-12 transition-colors ${
+                              isDragOver ? 'text-amber-500' : 'text-gray-400'
+                            }`} />
                             <div className="mt-4">
                               <Label htmlFor="file-upload" className="cursor-pointer">
                                 <span className="mt-2 block text-sm font-medium text-gray-900">
-                                  Загрузить новые изображения
+                                  {isDragOver ? 'Отпустите файлы здесь' : 'Загрузить новые изображения'}
                                 </span>
                                 <Input
                                   id="file-upload"
@@ -702,9 +920,12 @@ export function AdminPanel() {
                                 />
                               </Label>
                               <p className="mt-1 text-xs text-gray-500">
+                                Перетащите изображения сюда или нажмите для выбора
+                              </p>
+                              <p className="mt-1 text-xs text-gray-400">
                                 PNG, JPG, GIF до 10MB
                               </p>
-        </div>
+                            </div>
                           </div>
                         </div>
 
@@ -799,12 +1020,12 @@ export function AdminPanel() {
                       <div className="flex items-center space-x-4">
                         <img
                           src={`${API_BASE}${category.image}`}
-                          alt={category.name.ru}
+                          alt={category.name?.ru || 'Category'}
                           className="w-16 h-16 object-cover rounded"
                         />
                         <div>
-                          <h3 className="font-semibold">{category.name.ru}</h3>
-                          <p className="text-sm text-gray-600">{category.name.en}</p>
+                          <h3 className="font-semibold">{category.name?.ru || 'Без названия'}</h3>
+                          <p className="text-sm text-gray-600">{category.name?.en || ''}</p>
                           <p className="text-xs text-gray-500">Позиция: {index + 1}</p>
                         </div>
                       </div>
@@ -903,14 +1124,50 @@ export function AdminPanel() {
                     <div>
                       <Label htmlFor="category-image">Изображение категории</Label>
                       <div className="mt-2">
-                        <input
-                          type="file"
-                          id="category-image"
-                          accept="image/*"
-                          onChange={(e) => setSelectedCategoryImage(e.target.files?.[0] || null)}
-                          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100"
-                        />
+                        <div 
+                          className={`border-2 border-dashed rounded-lg p-4 transition-all duration-200 ${
+                            isDragOver 
+                              ? 'border-amber-400 bg-amber-50' 
+                              : 'border-gray-300 hover:border-gray-400'
+                          }`}
+                          onDragOver={handleDragOver}
+                          onDragLeave={handleDragLeave}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            setIsDragOver(false);
+                            const files = Array.from(e.dataTransfer.files).filter(file => 
+                              file.type.startsWith('image/')
+                            );
+                            if (files.length > 0) {
+                              setSelectedCategoryImage(files[0]);
+                            }
+                          }}
+                        >
+                          <div className="text-center">
+                            <Upload className={`mx-auto h-8 w-8 transition-colors ${
+                              isDragOver ? 'text-amber-500' : 'text-gray-400'
+                            }`} />
+                            <div className="mt-2">
+                              <Label htmlFor="category-image" className="cursor-pointer">
+                                <span className="text-sm font-medium text-gray-900">
+                                  {isDragOver ? 'Отпустите изображение здесь' : 'Выберите изображение'}
+                                </span>
+                                <input
+                                  type="file"
+                                  id="category-image"
+                                  accept="image/*"
+                                  onChange={(e) => setSelectedCategoryImage(e.target.files?.[0] || null)}
+                                  className="sr-only"
+                                />
+                              </Label>
+                              <p className="text-xs text-gray-500 mt-1">
+                                Перетащите изображение сюда или нажмите для выбора
+                              </p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
+                      {/* Текущее изображение */}
                       {categoryFormData.image && !selectedCategoryImage && (
                         <div className="mt-2">
                           <p className="text-sm text-gray-600">Текущее изображение:</p>
@@ -919,6 +1176,32 @@ export function AdminPanel() {
                             alt="Текущее изображение"
                             className="w-32 h-32 object-cover rounded mt-2"
                           />
+                        </div>
+                      )}
+                      
+                      {/* Предварительный просмотр выбранного изображения */}
+                      {selectedCategoryImage && (
+                        <div className="mt-2">
+                          <p className="text-sm text-gray-600">Выбранное изображение:</p>
+                          <div className="relative inline-block">
+                            <img
+                              src={URL.createObjectURL(selectedCategoryImage)}
+                              alt="Выбранное изображение"
+                              className="w-32 h-32 object-cover rounded mt-2"
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                              onClick={() => setSelectedCategoryImage(null)}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {selectedCategoryImage.name} ({(selectedCategoryImage.size / 1024 / 1024).toFixed(1)}MB)
+                          </p>
                         </div>
                       )}
                     </div>
